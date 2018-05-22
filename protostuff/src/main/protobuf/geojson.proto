@@ -1,0 +1,63 @@
+package net.iakovlev.timeshape.proto;
+
+message FeatureCollection {
+    repeated Feature features = 1;
+}
+
+message Feature {
+    required Geometry geometry = 1;
+    repeated Property properties = 2;
+}
+
+message Point {
+    required Position coordinates = 1;
+}
+
+message MultiPoint {
+    repeated Position coordinates = 1;
+}
+
+message LineString {
+    repeated Position coordinates = 1;
+}
+
+message MultiLineString {
+    repeated LineString coordinates = 1;
+}
+
+message Polygon {
+    repeated LineString coordinates = 1;
+}
+
+message MultiPolygon {
+    repeated Polygon coordinates = 1;
+}
+
+message GeometryCollection {
+    repeated Geometry geometries = 1;
+}
+
+message Position {
+    required float lon = 1;
+    required float lat = 2;
+}
+
+message Geometry {
+    oneof type {
+        Point point = 1;
+        MultiPoint multiPoint = 2;
+        LineString lineString = 3;
+        MultiLineString multiLineString = 4;
+        Polygon polygon = 5;
+        MultiPolygon multiPolygon = 6;
+        GeometryCollection geometryCollection = 7;
+    }
+}
+
+message Property {
+    required string key = 1;
+    oneof value {
+        string valueString = 2;
+        double valueNumber = 3;
+    }
+}

@@ -1,6 +1,15 @@
 package net.iakovlev.timeshape;
 
+import net.iakovlev.timeshape.proto.Geojson;
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
+import org.apache.commons.compress.archivers.sevenz.SevenZFile;
+import org.tukaani.xz.SeekableFileInputStream;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.SeekableByteChannel;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
@@ -44,14 +53,16 @@ public final class TimeZoneEngine {
      * @return an initialized instance of {@link TimeZoneEngine}
      */
     public static TimeZoneEngine initialize() {
-        try (InputStream stream = TimeZoneEngine.class.getResourceAsStream("/timezones.geojson.zip");
-             ZipInputStream zipInputStream = new ZipInputStream(stream)) {
-            if (zipInputStream.getNextEntry() != null) {
-                return new TimeZoneEngine(Index.build(DataLoader.readData(zipInputStream)));
+        try (SevenZFile f = new SevenZFile(new File(TimeZoneEngine.class.getResource("/output.pb.7z").getFile()))) {
+            SevenZArchiveEntry nextEntry = f.getNextEntry();
+            if (nextEntry != null) {
+                byte[] e = new byte[(int)nextEntry.getSize()];
+                f.read(e);
+                return new TimeZoneEngine(Index.build(Geojson.FeatureCollection.parseFrom(e)));
             } else {
-                throw new RuntimeException("Data entry is not found in zip file");
+                throw new RuntimeException("Data entry is not found in 7z file");
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException("Couldn't load the data", e);
         }
     }
