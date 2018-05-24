@@ -7,7 +7,11 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.PrimitiveIterator;
+import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 final class Index {
     static private final class Entry {
@@ -48,34 +52,34 @@ final class Index {
         return Optional.empty();
     }
 
-    static Index build(Geojson.FeatureCollection featureCollection) {
+    private static void buildPoly(Geojson.Polygon from, Polygon poly) {
+        from.getCoordinatesList().stream()
+            .map(Geojson.LineString::getCoordinatesList)
+            .forEachOrdered(lp -> {
+                poly.startPath(lp.get(0).getLon(), lp.get(0).getLat());
+                lp.subList(1, lp.size()).forEach(p -> poly.lineTo(p.getLon(), p.getLat()));
+            });
+    }
+
+    static Index build(Stream<Geojson.Feature> features, int size) {
         QuadTree quadTree = new QuadTree(new Envelope2D(-180, -90, 180, 90), 8);
         Envelope2D env = new Envelope2D();
-        ArrayList<Entry> zoneIds = new ArrayList<>(featureCollection.getFeaturesCount());
-        int index = -1;
-        for (Geojson.Feature f : featureCollection.getFeaturesList()) {
-            index += 1;
+        ArrayList<Entry> zoneIds = new ArrayList<>(size);
+        PrimitiveIterator.OfInt indices = IntStream.iterate(0, i -> i + 1).iterator();
+        features.forEach(f -> {
+            int index = indices.next();
             Polygon polygon = new Polygon();
             if (f.getGeometry().hasPolygon()) {
                 Geojson.Polygon polygonProto = f.getGeometry().getPolygon();
-                polygonProto.getCoordinatesList().stream().map(Geojson.LineString::getCoordinatesList).forEachOrdered(lp -> {
-                    polygon.startPath(lp.get(0).getLon(), lp.get(0).getLat());
-                    lp.subList(1, lp.size()).forEach(p -> polygon.lineTo(p.getLon(), p.getLat()));
-                });
+                buildPoly(polygonProto, polygon);
             } else if (f.getGeometry().hasMultiPolygon()) {
                 Geojson.MultiPolygon multiPolygonProto = f.getGeometry().getMultiPolygon();
-                multiPolygonProto.getCoordinatesList().stream()
-                        .flatMap(p -> p.getCoordinatesList().stream().map(Geojson.LineString::getCoordinatesList))
-                        .forEachOrdered(lp -> {
-                            polygon.startPath(lp.get(0).getLon(), lp.get(0).getLat());
-                            lp.subList(1, lp.size()).forEach(p -> polygon.lineTo(p.getLon(), p.getLat()));
-                        });
+                multiPolygonProto.getCoordinatesList().forEach(lp -> buildPoly(lp, polygon));
             }
-            polygon.reverseAllPaths();
             polygon.queryEnvelope2D(env);
             quadTree.insert(index, env);
             zoneIds.add(index, new Entry(ZoneId.of(f.getProperties(0).getValueString()), polygon));
-        }
+        });
         return new Index(quadTree, zoneIds);
     }
 

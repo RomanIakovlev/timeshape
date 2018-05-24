@@ -3,7 +3,6 @@ package net.iakovlev.timeshape;
 import net.iakovlev.timeshape.proto.Geojson;
 import org.geojson.*;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,7 +32,7 @@ final class Builder {
         return builder.build();
     }
 
-    static Geojson.FeatureCollection buildProto(FeatureCollection featureCollection) throws IOException {
+    static Geojson.FeatureCollection buildProto(FeatureCollection featureCollection) {
         Geojson.FeatureCollection.Builder featureCollectionBuilder = Geojson.FeatureCollection.newBuilder();
         for (org.geojson.Feature f : featureCollection.getFeatures()) {
             String tzid = f.getProperties().get("tzid").toString();

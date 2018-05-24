@@ -18,7 +18,9 @@ lazy val core = (project in file("core"))
       "com.novocode" % "junit-interface" % "0.11" % Test
         exclude("junit", "junit-dep")
     ),
-    name := "timeshape"
+    name := "timeshape",
+    fork := true,
+    javaOptions += "-Xmx164m"
   )
   .dependsOn(protostuff)
 
@@ -27,7 +29,6 @@ lazy val builder = (project in file("builder"))
   .settings(
     libraryDependencies := Seq(
       "de.grundid.opendatalab" % "geojson-jackson" % "1.8",
-      "com.esri.geometry" % "esri-geometry-api" % "2.1.0",
       "org.apache.commons" % "commons-compress" % "1.14",
       "org.tukaani" % "xz" % "1.6"
     ),
