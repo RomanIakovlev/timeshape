@@ -61,13 +61,12 @@ final class Index {
             });
     }
 
-    static Index build(Stream<Geojson.Feature> features, int size) {
-        QuadTree quadTree = new QuadTree(new Envelope2D(-180, -90, 180, 90), 8);
+    static Index build(Stream<Geojson.Feature> features, int size, Envelope2D boundaries) {
+        QuadTree quadTree = new QuadTree(boundaries, 8);
         Envelope2D env = new Envelope2D();
         ArrayList<Entry> zoneIds = new ArrayList<>(size);
         PrimitiveIterator.OfInt indices = IntStream.iterate(0, i -> i + 1).iterator();
         features.forEach(f -> {
-            int index = indices.next();
             Polygon polygon = new Polygon();
             if (f.getGeometry().hasPolygon()) {
                 Geojson.Polygon polygonProto = f.getGeometry().getPolygon();
@@ -77,8 +76,11 @@ final class Index {
                 multiPolygonProto.getCoordinatesList().forEach(lp -> buildPoly(lp, polygon));
             }
             polygon.queryEnvelope2D(env);
-            quadTree.insert(index, env);
-            zoneIds.add(index, new Entry(ZoneId.of(f.getProperties(0).getValueString()), polygon));
+            if (boundaries.contains(env)) {
+                int index = indices.next();
+                quadTree.insert(index, env);
+                zoneIds.add(index, new Entry(ZoneId.of(f.getProperties(0).getValueString()), polygon));
+            }
         });
         return new Index(quadTree, zoneIds);
     }

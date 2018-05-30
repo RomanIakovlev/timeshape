@@ -16,7 +16,7 @@ import static junit.framework.TestCase.assertTrue;
 
 @RunWith(JUnit4.class)
 public class TimeZoneEngineTest {
-    static TimeZoneEngine engine = TimeZoneEngine.initialize();
+    private static TimeZoneEngine engine = TimeZoneEngine.initialize();
 
     @Test
     public void testSomeZones() {
