@@ -1,6 +1,6 @@
 val commonSettings = Seq(
   organization := "net.iakovlev",
-  version := "2018d.2-SNAPSHOT",
+  version := "2018d.3-SNAPSHOT",
   crossPaths := false,
   autoScalaLibrary := false,
   publishMavenStyle := true
@@ -32,16 +32,19 @@ lazy val builder = (project in file("builder"))
       "org.apache.commons" % "commons-compress" % "1.14",
       "org.tukaani" % "xz" % "1.6"
     ),
-    name := "timeshape-builder"
+    name := "timeshape-builder",
+    skip in publish := true
   )
   .dependsOn(protostuff)
 
 lazy val protostuff = (project in file("protostuff"))
   .settings(commonSettings)
+  .settings(skip in publish := true)
   .enablePlugins(ProtobufPlugin)
 
 lazy val testApp = (project in file("test-app"))
   .settings(commonSettings)
   .settings(
-    mainClass in assembly := Some("net.iakovlev.timeshape.testapp.Main"))
+    mainClass in assembly := Some("net.iakovlev.timeshape.testapp.Main"),
+    skip in publish := true)
   .dependsOn(core)
