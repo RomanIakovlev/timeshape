@@ -66,27 +66,31 @@ public final class TimeZoneEngine {
      * @return an initialized instance of {@link TimeZoneEngine}
      */
     public static TimeZoneEngine initialize(double minlat, double minlon, double maxlat, double maxlon) {
-            try (InputStream resourceAsStream = TimeZoneEngine.class.getResourceAsStream("/output.pb.7z");
-                 SeekableInMemoryByteChannel seekableInMemoryByteChannel = new SeekableInMemoryByteChannel(IOUtils.toByteArray(resourceAsStream));
-                 SevenZFile f = new SevenZFile(seekableInMemoryByteChannel)) {
-                Stream<Geojson.Feature> featureStream = StreamSupport.stream(f.getEntries().spliterator(), false).map(n -> {
-                    try {
-                        SevenZArchiveEntry nextEntry = f.getNextEntry();
-                        if (nextEntry != null) {
-                            byte[] e = new byte[(int) nextEntry.getSize()];
-                            f.read(e);
-                            return Geojson.Feature.parseFrom(e);
-                        } else {
-                            throw new RuntimeException("Data entry is not found in 7z file");
-                        }
-                    } catch (NullPointerException | IOException ex) {
-                        throw new RuntimeException(ex);
+        try (InputStream resourceAsStream = TimeZoneEngine.class.getResourceAsStream("/output.pb.7z");
+             SeekableInMemoryByteChannel channel = new SeekableInMemoryByteChannel(IOUtils.toByteArray(resourceAsStream));
+             SevenZFile f = new SevenZFile(channel)) {
+            Stream<Geojson.Feature> featureStream = StreamSupport.stream(f.getEntries().spliterator(), false).map(n -> {
+                try {
+                    SevenZArchiveEntry nextEntry = f.getNextEntry();
+                    if (nextEntry != null) {
+                        byte[] e = new byte[(int) nextEntry.getSize()];
+                        f.read(e);
+                        return Geojson.Feature.parseFrom(e);
+                    } else {
+                        throw new RuntimeException("Data entry is not found in 7z file");
                     }
-                });
-                Envelope2D boundaries = new Envelope2D(minlon, minlat, maxlon, maxlat);
-                return new TimeZoneEngine(Index.build(featureStream, (int) f.getEntries().spliterator().getExactSizeIfKnown(), boundaries));
-            } catch (NullPointerException | IOException e) {
-                throw new RuntimeException(e);
-            }
+                } catch (NullPointerException | IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            Envelope2D boundaries = new Envelope2D(minlon, minlat, maxlon, maxlat);
+            return new TimeZoneEngine(
+                    Index.build(
+                            featureStream,
+                            (int) f.getEntries().spliterator().getExactSizeIfKnown(),
+                            boundaries));
+        } catch (NullPointerException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

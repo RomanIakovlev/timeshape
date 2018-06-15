@@ -1,10 +1,3 @@
-publishTo := Some(
-  if (isSnapshot.value)
-    Opts.resolver.sonatypeSnapshots
-  else
-    Opts.resolver.sonatypeStaging
-)
-
 pomExtra in Global := {
   <url>https://github.com/RomanIakovlev/timeshape</url>
     <licenses>
