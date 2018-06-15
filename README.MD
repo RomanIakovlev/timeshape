@@ -18,7 +18,7 @@ Timeshape is published on Maven Central. The coordinates are the following:
 <dependency>
     <groupId>net.iakovlev</groupId>
     <artifactId>timeshape</artifactId>
-    <version>2018d.2</version>
+    <version>2018d.3</version>
 </dependency>
 ``` 
 

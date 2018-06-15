@@ -8,13 +8,19 @@ import org.geojson.FeatureCollection;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.zip.ZipInputStream;
 
 public class Main {
 
-    static void writeSevenZProto(String inputPath, String outputPath) {
-        try (InputStream stream = new FileInputStream(inputPath)) {
+    static void writeSevenZProto(String version, String outputPath) {
+        String url = "https://github.com/evansiroky/timezone-boundary-builder/releases/download/" + version + "/timezones.geojson.zip";
+        try (InputStream stream = new URL(url).openStream()) {
             ZipInputStream zipInputStream = new ZipInputStream(stream);
             zipInputStream.getNextEntry();
             Geojson.FeatureCollection featureCollection = Builder.buildProto(new ObjectMapper().readValue(zipInputStream, FeatureCollection.class));
@@ -33,8 +39,8 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        String inputPath = args[0];
+        String version = args[0];
         String outputPath = args[1];
-        writeSevenZProto(inputPath, outputPath);
+        writeSevenZProto(version, outputPath);
     }
 }
