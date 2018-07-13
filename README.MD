@@ -18,7 +18,7 @@ Timeshape is published on Maven Central. The coordinates are the following:
 <dependency>
     <groupId>net.iakovlev</groupId>
     <artifactId>timeshape</artifactId>
-    <version>2018d.3</version>
+    <version>2018d.4</version>
 </dependency>
 ``` 
 
@@ -50,7 +50,7 @@ Optional<ZoneId> maybeZoneId = engine.query(52.52, 13.40);
 ``` 
 
 #### Memory usage
-This library requires roughly 174 megabytes of heap memory to parse the geometry data and build index for the whole world.
+This library requires roughly 179 megabytes of heap memory to parse the geometry data and build index for the whole world.
 This is reflected in the configuration of Java options in `core` sbt project, to track if memory usage will increase in future.
 It is possible to further limit the memory usage by reducing the amount of time zones loaded. This is implemented by a call to
 `TimeZoneEngine.initialize(double minlat, double minlon, double maxlat, double maxlon)`

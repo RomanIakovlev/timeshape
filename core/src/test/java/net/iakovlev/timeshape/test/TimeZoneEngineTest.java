@@ -27,6 +27,7 @@ public class TimeZoneEngineTest {
         assertEquals(engine.query(5.345317, -4.024429), Optional.of(ZoneId.of("Africa/Abidjan")));
         assertEquals(engine.query(40.785091, -73.968285), Optional.of(ZoneId.of("America/New_York")));
         assertEquals(engine.query(-33.865143, 151.215256), Optional.of(ZoneId.of("Australia/Sydney")));
+        assertEquals(engine.query(38.00, -15.2814), Optional.of(ZoneId.of("Etc/GMT+1")));
     }
 
     @Test

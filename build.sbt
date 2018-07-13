@@ -1,5 +1,5 @@
 val dataVersion = "2018d"
-val softwareVersion = "3"
+val softwareVersion = "4"
 val sevenZSupport = Seq(
   "org.apache.commons" % "commons-compress" % "1.14",
   "org.tukaani" % "xz" % "1.6",
@@ -13,6 +13,11 @@ val commonSettings = Seq(
   publishMavenStyle := true
 )
 
+lazy val timeshape = (project in file("."))
+  .settings(commonSettings)
+  .aggregate(core, builder, testApp)
+  .settings(skip in publish := true)
+
 lazy val core = (project in file("core"))
   .settings(commonSettings)
   .settings(
@@ -24,8 +29,8 @@ lazy val core = (project in file("core"))
     ) ++ sevenZSupport,
     name := "timeshape",
     fork := true,
-    javaOptions += "-Xmx174m",
-    publishTo := Some(Opts.resolver.sonatypeStaging)
+    javaOptions += "-Xmx179m",
+    publishTo := sonatypePublishTo.value
   )
   .enablePlugins(ProtobufPlugin)
 
