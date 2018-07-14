@@ -8,7 +8,9 @@
 > ― **Albert Einstein**
 
 Timeshape is a Java library that can be used to determine to which time zone a given geo coordinate belongs.
-It's based on data published at [https://github.com/evansiroky/timezone-boundary-builder/releases](https://github.com/evansiroky/timezone-boundary-builder/releases).
+It's based on data published at 
+[https://github.com/evansiroky/timezone-boundary-builder/releases](https://github.com/evansiroky/timezone-boundary-builder/releases),
+which itself is inherited from the OpenStreetMap data.
 
 ## Getting started
 
@@ -50,10 +52,14 @@ Optional<ZoneId> maybeZoneId = engine.query(52.52, 13.40);
 ``` 
 
 #### Memory usage
-This library requires roughly 179 megabytes of heap memory to parse the geometry data and build index for the whole world.
+This library requires roughly 179 megabytes of heap memory to parse the geometry data and build index for the whole world 
+when running the tests.
 This is reflected in the configuration of Java options in `core` sbt project, to track if memory usage will increase in future.
 It is possible to further limit the memory usage by reducing the amount of time zones loaded. This is implemented by a call to
 `TimeZoneEngine.initialize(double minlat, double minlon, double maxlat, double maxlon)`
+
+The `testApp` project provides a more precise memory usage estimate by using [JOL](http://openjdk.java.net/projects/code-tools/jol/).
+The current version's estimated footprint is roughly 128 MB of memory when the data for the whole world is loaded.
 
 ## Versioning
 Version of Timeshape consist of data version and software version, divided by a '.' symbol. 

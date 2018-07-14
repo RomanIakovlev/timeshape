@@ -1,10 +1,19 @@
 package net.iakovlev.timeshape.testapp;
 
 import net.iakovlev.timeshape.TimeZoneEngine;
+import org.openjdk.jol.info.GraphLayout;
+import org.openjdk.jol.vm.VM;
+
+import static java.lang.System.out;
 
 public class Main {
     static public void main(String[] args) {
-        TimeZoneEngine engine = TimeZoneEngine.initialize(47.0599, 4.8237, 55.3300, 15.2486);
-        System.out.println(engine.query(52.52, 13.40));
+        long start = System.currentTimeMillis();
+        TimeZoneEngine engine = TimeZoneEngine.initialize();
+        long total = System.currentTimeMillis() - start;
+        out.println("initialization took " + total + " milliseconds");
+        out.println(engine.query(52.52, 13.40));
+        out.println(VM.current().details());
+        out.println(GraphLayout.parseInstance(engine).toFootprint());
     }
 }

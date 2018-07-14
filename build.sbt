@@ -2,7 +2,7 @@ val dataVersion = "2018d"
 val softwareVersion = "4"
 val sevenZSupport = Seq(
   "org.apache.commons" % "commons-compress" % "1.14",
-  "org.tukaani" % "xz" % "1.6",
+  "org.tukaani" % "xz" % "1.6"
 )
 val commonSettings = Seq(
   organization := "net.iakovlev",
@@ -49,5 +49,7 @@ lazy val testApp = (project in file("test-app"))
   .settings(commonSettings)
   .settings(
     mainClass in assembly := Some("net.iakovlev.timeshape.testapp.Main"),
-    skip in publish := true)
+    skip in publish := true,
+    libraryDependencies += "org.openjdk.jol" % "jol-core" % "0.9"
+  )
   .dependsOn(core)
