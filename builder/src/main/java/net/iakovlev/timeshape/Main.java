@@ -7,19 +7,14 @@ import org.apache.commons.compress.archivers.sevenz.SevenZOutputFile;
 import org.geojson.FeatureCollection;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.zip.ZipInputStream;
 
 public class Main {
 
     static void writeSevenZProto(String version, String outputPath) {
-        String url = "https://github.com/evansiroky/timezone-boundary-builder/releases/download/" + version + "/timezones.geojson.zip";
+        String url = "https://github.com/evansiroky/timezone-boundary-builder/releases/download/" + version + "/timezones-with-oceans.geojson.zip";
         try (InputStream stream = new URL(url).openStream()) {
             ZipInputStream zipInputStream = new ZipInputStream(stream);
             zipInputStream.getNextEntry();
