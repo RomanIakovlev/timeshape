@@ -1,7 +1,7 @@
 import scala.sys.process._
 
 val dataVersion = "2018d"
-val softwareVersion = "4"
+val softwareVersion = "5"
 val sevenZSupport = Seq(
   "org.apache.commons" % "commons-compress" % "1.14",
   "org.tukaani" % "xz" % "1.6"
@@ -9,7 +9,7 @@ val sevenZSupport = Seq(
 val commonSettings = Seq(
   organization := "net.iakovlev",
   sonatypeProfileName := "net.iakovlev",
-  version := s"$dataVersion.$softwareVersion",
+  version := s"$dataVersion.$softwareVersion-SNAPSHOT",
   crossPaths := false,
   autoScalaLibrary := false,
   publishMavenStyle := true
