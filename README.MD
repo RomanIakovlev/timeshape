@@ -20,51 +20,51 @@ Timeshape is published on Maven Central. The coordinates are the following:
 <dependency>
     <groupId>net.iakovlev</groupId>
     <artifactId>timeshape</artifactId>
-    <version>2018d.4</version>
-</dependency>
-``` 
+    <version>2018d.5</version>
+    </dependency>
+    ``` 
 
 ## Using the library
 
-The user API of library is in `net.iakovlev.TimeZoneEngine` class. To use it, follow these steps:
+    The user API of library is in `net.iakovlev.TimeZoneEngine` class. To use it, follow these steps:
 
-* Initialize the class with the data for the whole world:
+    * Initialize the class with the data for the whole world:
 
-```java
-import net.iakovlev.TimeZoneEngine;
-TimeZoneEngine engine = TimeZoneEngine.initialize();
-```
-Or, alternatively, initialize it with some bounding box only, to reduce memory usage:
-```java
-TimeZoneEngine engine = TimeZoneEngine.initialize(47.0599, 4.8237, 55.3300, 15.2486);
-```
-It is important to mention that for the time zone to be loaded by the second method,
-it must be covered by the bounding box completely, not just intersect with it.
-During initialization, the data is read from resource and the index is built. 
-Initialization takes a significant amount of time (several seconds), so do it only once in program lifetime.
+	    ```java
+	    import net.iakovlev.TimeZoneEngine;
+	    TimeZoneEngine engine = TimeZoneEngine.initialize();
+	    ```
+	    Or, alternatively, initialize it with some bounding box only, to reduce memory usage:
+	    ```java
+	    TimeZoneEngine engine = TimeZoneEngine.initialize(47.0599, 4.8237, 55.3300, 15.2486);
+	    ```
+	    It is important to mention that for the time zone to be loaded by the second method,
+	    it must be covered by the bounding box completely, not just intersect with it.
+	    During initialization, the data is read from resource and the index is built. 
+	    Initialization takes a significant amount of time (several seconds), so do it only once in program lifetime.
 
-* Query for `java.time.ZoneId`:
-Once initialization is completed, you can query the `ZoneId` based on latitude and longitude:
+	    * Query for `java.time.ZoneId`:
+	    Once initialization is completed, you can query the `ZoneId` based on latitude and longitude:
 
-```java
-import java.util.Optional;
-import java.time.ZoneId;
-Optional<ZoneId> maybeZoneId = engine.query(52.52, 13.40);
-``` 
+	    ```java
+	    import java.util.Optional;
+	    import java.time.ZoneId;
+	    Optional<ZoneId> maybeZoneId = engine.query(52.52, 13.40);
+	    ``` 
 
 ## Architecture
-This section describes how the Timeshape is designed, which technologies it uses, and how to build it yourself.
-This might be helpful if you want to contribute to it, or just to understand how it works.
+	    This section describes how the Timeshape is designed, which technologies it uses, and how to build it yourself.
+	    This might be helpful if you want to contribute to it, or just to understand how it works.
 
 ### Overview
-Timeshape is built around the idea of taking the source data with time zones in [geojson](http://geojson.org/) format, 
-convert it into something more efficient to store and read than geojson, and package converted data together with
-the code that can read and query it into a single artifact (JAR file). Efficiency is the key word here, because the
-source data is quite big, and using it as is would impose too high memory and artifact size requirements on the users
-of Timeshape.
+	    Timeshape is built around the idea of taking the source data with time zones in [geojson](http://geojson.org/) format, 
+	    convert it into something more efficient to store and read than geojson, and package converted data together with
+	    the code that can read and query it into a single artifact (JAR file). Efficiency is the key word here, because the
+	    source data is quite big, and using it as is would impose too high memory and artifact size requirements on the users
+	    of Timeshape.
 
-Timeshape currently uses compressed [protocol buffers](https://developers.google.com/protocol-buffers/) 
-(a.k.a. protobuf) as the target data format. The protobuf data is compressed using 7Zip method, which allows to reach 
+	    Timeshape currently uses compressed [protocol buffers](https://developers.google.com/protocol-buffers/) 
+	    (a.k.a. protobuf) as the target data format. The protobuf data is compressed using 7Zip method, which allows to reach 
 relatively small artifact size: 19 MB total JAR size vs 57 MB for the source data only (geojson compressed with zip). 
 The biggest win in terms of size is, however, not due to efficiency of protobuf vs geojson, but due to the fact that `float` 
 is used instead of `double` to store geo coordinates in protobuf. 
