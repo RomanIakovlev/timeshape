@@ -2,6 +2,8 @@ package net.iakovlev.timeshape;
 
 import com.esri.core.geometry.*;
 import net.iakovlev.timeshape.proto.Geojson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -26,8 +28,10 @@ final class Index {
     private final ArrayList<Entry> zoneIds;
     private final SpatialReference spatialReference;
     private final QuadTree quadTree;
+    private static final Logger log = LoggerFactory.getLogger(Index.class);
 
     private Index(QuadTree quadTree, ArrayList<Entry> zoneIds) {
+        log.info("Initialized index with {} time zones", zoneIds.size());
         int WGS84_WKID = 4326;
         this.quadTree = quadTree;
         this.zoneIds = zoneIds;
@@ -53,11 +57,11 @@ final class Index {
 
     private static void buildPoly(Geojson.Polygon from, Polygon poly) {
         from.getCoordinatesList().stream()
-            .map(Geojson.LineString::getCoordinatesList)
-            .forEachOrdered(lp -> {
-                poly.startPath(lp.get(0).getLon(), lp.get(0).getLat());
-                lp.subList(1, lp.size()).forEach(p -> poly.lineTo(p.getLon(), p.getLat()));
-            });
+                .map(Geojson.LineString::getCoordinatesList)
+                .forEachOrdered(lp -> {
+                    poly.startPath(lp.get(0).getLon(), lp.get(0).getLat());
+                    lp.subList(1, lp.size()).forEach(p -> poly.lineTo(p.getLon(), p.getLat()));
+                });
     }
 
     static Index build(Stream<Geojson.Feature> features, int size, Envelope2D boundaries) {
@@ -65,22 +69,42 @@ final class Index {
         Envelope2D env = new Envelope2D();
         ArrayList<Entry> zoneIds = new ArrayList<>(size);
         PrimitiveIterator.OfInt indices = IntStream.iterate(0, i -> i + 1).iterator();
+        List<String> unknownZones = new ArrayList<>();
         features.forEach(f -> {
-            Polygon polygon = new Polygon();
-            if (f.getGeometry().hasPolygon()) {
-                Geojson.Polygon polygonProto = f.getGeometry().getPolygon();
-                buildPoly(polygonProto, polygon);
-            } else if (f.getGeometry().hasMultiPolygon()) {
-                Geojson.MultiPolygon multiPolygonProto = f.getGeometry().getMultiPolygon();
-                multiPolygonProto.getCoordinatesList().forEach(lp -> buildPoly(lp, polygon));
+            String zoneIdName = f.getProperties(0).getValueString();
+            ZoneId zoneId = null;
+            try {
+                zoneId = ZoneId.of(zoneIdName);
+            } catch (Exception ex) {
+                unknownZones.add(zoneIdName);
             }
-            polygon.queryEnvelope2D(env);
-            if (boundaries.contains(env)) {
-                int index = indices.next();
-                quadTree.insert(index, env);
-                zoneIds.add(index, new Entry(ZoneId.of(f.getProperties(0).getValueString()), polygon));
+            if (zoneId != null) {
+                Polygon polygon = new Polygon();
+                if (f.getGeometry().hasPolygon()) {
+                    Geojson.Polygon polygonProto = f.getGeometry().getPolygon();
+                    buildPoly(polygonProto, polygon);
+                } else if (f.getGeometry().hasMultiPolygon()) {
+                    Geojson.MultiPolygon multiPolygonProto = f.getGeometry().getMultiPolygon();
+                    multiPolygonProto.getCoordinatesList().forEach(lp -> buildPoly(lp, polygon));
+                }
+                polygon.queryEnvelope2D(env);
+                if (boundaries.contains(env)) {
+                    log.debug("Adding zone {} to index", zoneIdName);
+                    int index = indices.next();
+                    quadTree.insert(index, env);
+                    zoneIds.add(index, new Entry(zoneId, polygon));
+                } else {
+                    log.debug("Not adding zone {} to index because it's out of provided boundaries");
+                }
             }
         });
+        if (unknownZones.size() != 0) {
+            String allUnknownZones = String.join(", ", unknownZones);
+            log.error(
+                    "Some of the zone ids were not recognized by the Java runtime and will be ignored. " +
+                    "The most probable reason for this is outdated Java runtime version. " +
+                    "The following zones were not recognized: " + allUnknownZones);
+        }
         return new Index(quadTree, zoneIds);
     }
 
