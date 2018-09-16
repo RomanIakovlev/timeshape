@@ -22,51 +22,51 @@ Timeshape is published on Maven Central. The coordinates are the following:
     <artifactId>timeshape</artifactId>
     <version>2018d.5</version>
     </dependency>
-    ``` 
+``` 
 
 ## Using the library
 
-    The user API of library is in `net.iakovlev.TimeZoneEngine` class. To use it, follow these steps:
+The user API of library is in `net.iakovlev.TimeZoneEngine` class. To use it, follow these steps:
+    
+#### Initialize the class with the data for the whole world:
+```java
+import net.iakovlev.TimeZoneEngine;
+TimeZoneEngine engine = TimeZoneEngine.initialize();
+```
+Or, alternatively, initialize it with some bounding box only, to reduce memory usage:
+```java
+TimeZoneEngine engine = TimeZoneEngine.initialize(47.0599, 4.8237, 55.3300, 15.2486);
+```
+It is important to mention that for the time zone to be loaded by the second method,
+it must be covered by the bounding box completely, not just intersect with it.
 
-    * Initialize the class with the data for the whole world:
+During initialization, the data is read from resource and the index is built. 
+Initialization takes a significant amount of time (several seconds), so do it only once in program lifetime.
 
-	    ```java
-	    import net.iakovlev.TimeZoneEngine;
-	    TimeZoneEngine engine = TimeZoneEngine.initialize();
-	    ```
-	    Or, alternatively, initialize it with some bounding box only, to reduce memory usage:
-	    ```java
-	    TimeZoneEngine engine = TimeZoneEngine.initialize(47.0599, 4.8237, 55.3300, 15.2486);
-	    ```
-	    It is important to mention that for the time zone to be loaded by the second method,
-	    it must be covered by the bounding box completely, not just intersect with it.
-	    During initialization, the data is read from resource and the index is built. 
-	    Initialization takes a significant amount of time (several seconds), so do it only once in program lifetime.
+#### Query for `java.time.ZoneId`:
+Once initialization is completed, you can query the `ZoneId` based on latitude and longitude:
 
-	    * Query for `java.time.ZoneId`:
-	    Once initialization is completed, you can query the `ZoneId` based on latitude and longitude:
-
-	    ```java
-	    import java.util.Optional;
-	    import java.time.ZoneId;
-	    Optional<ZoneId> maybeZoneId = engine.query(52.52, 13.40);
-	    ``` 
+```java
+import java.util.Optional;
+import java.time.ZoneId;
+Optional<ZoneId> maybeZoneId = engine.query(52.52, 13.40);
+``` 
 
 ## Architecture
-	    This section describes how the Timeshape is designed, which technologies it uses, and how to build it yourself.
-	    This might be helpful if you want to contribute to it, or just to understand how it works.
+This section describes how the Timeshape is designed, which technologies it uses, and how to build it yourself.
+This might be helpful if you want to contribute to it, or just to understand how it works.
 
 ### Overview
-	    Timeshape is built around the idea of taking the source data with time zones in [geojson](http://geojson.org/) format, 
-	    convert it into something more efficient to store and read than geojson, and package converted data together with
-	    the code that can read and query it into a single artifact (JAR file). Efficiency is the key word here, because the
-	    source data is quite big, and using it as is would impose too high memory and artifact size requirements on the users
-	    of Timeshape.
+Timeshape is built around the idea of taking the source data with time zones in [GeoJSON](http://geojson.org/) format, 
+convert it into something more efficient to store and read than GeoJSON, and package converted data together with
+the code that can read and query it into a single artifact (JAR file). Efficiency is the key word here, because the
+source data is quite big, and using it as is would impose too high memory and artifact size requirements on the users
+of Timeshape.
 
-	    Timeshape currently uses compressed [protocol buffers](https://developers.google.com/protocol-buffers/) 
-	    (a.k.a. protobuf) as the target data format. The protobuf data is compressed using 7Zip method, which allows to reach 
-relatively small artifact size: 19 MB total JAR size vs 57 MB for the source data only (geojson compressed with zip). 
-The biggest win in terms of size is, however, not due to efficiency of protobuf vs geojson, but due to the fact that `float` 
+Timeshape currently uses compressed [protocol buffers](https://developers.google.com/protocol-buffers/) 
+(a.k.a. protobuf) as the target data format. The protobuf data is compressed using 7Zip method, which allows to reach 
+relatively small artifact size: 19 MB total JAR size vs 57 MB for the source data only (GeoJSON compressed with zip). 
+The biggest win in terms of size is, however, not due to efficiency of protobuf vs GeoJSON, but due to the fact that `float` 
 is used instead of `double` to store geo coordinates in protobuf. 
 This means, only 4+4=8 bytes are required for each point (latitude + longitude), instead of 8+8=16 bytes for `double`.
 Precision of `float` is good enough for the source data.
@@ -84,7 +84,7 @@ Timeshape uses [sbt](https://scala-sbt.org) as build system. The sbt build defin
 
 Below you'll find some information about those individual projects. 
 #### geojson-protobuf
-This project contains the protobuf definitions corresponding to geojson format. 
+This project contains the protobuf definitions corresponding to GeoJSON format. 
 Those definitions are in file `geojson-proto/src/main/protobuf/geojson.proto`. Java code to read and write such protobuf
 messages is generated during compile time by [sbt-protobuf](https://github.com/sbt/sbt-protobuf) sbt plugin.
 Other projects (`core` and `builder`), which must read or write the protobuf, use those generated Java classes, and therefore
@@ -97,7 +97,7 @@ with which the library users interact, and provides the main published artifact.
 protobuf data file is in the [builder](#builder) project. The resource generator is run by sbt automatically when necessary.
 
 #### builder
-This project is responsible for downloading the source data from Github and converting it from geojson to protobuf format.
+This project is responsible for downloading the source data from Github and converting it from GeoJSON to protobuf format.
 It's usually called from the resource generator of `core` project, but can be run independently 
 (it's a standard Java application, after all).
 
