@@ -21,14 +21,15 @@ Timeshape is published on Maven Central. The coordinates are the following:
     <groupId>net.iakovlev</groupId>
     <artifactId>timeshape</artifactId>
     <version>2018d.5</version>
-    </dependency>
+</dependency>
 ``` 
 
 ## Using the library
 
 The user API of library is in `net.iakovlev.TimeZoneEngine` class. To use it, follow these steps:
     
-#### Initialize the class with the data for the whole world:
+#### Initialization
+Initialize the class with the data for the whole world:
 ```java
 import net.iakovlev.TimeZoneEngine;
 TimeZoneEngine engine = TimeZoneEngine.initialize();
