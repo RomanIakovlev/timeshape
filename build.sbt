@@ -57,8 +57,11 @@ lazy val core = (project in file("core"))
 
 lazy val `geojson-proto` = (project in file("geojson-proto"))
   .settings(commonSettings)
-  .settings(publishTo := sonatypePublishTo.value, version := "1.0.0")
-  .enablePlugins(ProtobufPlugin)
+  .settings(publishTo := sonatypePublishTo.value,
+            version := "1.0.0",
+            PB.targets in Compile := Seq(
+              PB.gens.java -> (sourceManaged in Compile).value
+            ))
 
 lazy val builder = (project in file("builder"))
   .settings(commonSettings)
