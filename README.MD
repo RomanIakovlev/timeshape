@@ -1,6 +1,7 @@
 # Timeshape
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.iakovlev/timeshape/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.iakovlev/timeshape/)
+![Build status](https://travis-ci.com/RomanIakovlev/timeshape.svg?branch=master)
 
 ## Quote
 > “Time is an illusion.”
