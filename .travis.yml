@@ -1,9 +1,9 @@
 language: scala
 
 jdk:
-- oraclejdk8
+  - oraclejdk8
 
-script: sbt test
+script: .travis/build.sh
 
 sudo: false
 
