@@ -2,40 +2,67 @@ package net.iakovlev.timeshape;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.iakovlev.timeshape.proto.Geojson;
-import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
-import org.apache.commons.compress.archivers.sevenz.SevenZOutputFile;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream;
 import org.geojson.FeatureCollection;
 
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.zip.ZipInputStream;
 
 public class Main {
 
-    static void writeSevenZProto(String version, String outputPath) {
-        String url = "https://github.com/evansiroky/timezone-boundary-builder/releases/download/" + version + "/timezones-with-oceans.geojson.zip";
-        try (InputStream stream = new URL(url).openStream()) {
-            ZipInputStream zipInputStream = new ZipInputStream(stream);
+    /**
+     * Provides access to source GeoJSON data. If argument is a path to the file on a local computer,
+     * it's opened for reading. If it's not a existing file, the argument is interpreted as a version number
+     * to download from Github
+     * @param argument either a path on a local computer or a version number to download from Github
+     * @return Stream with contents (zip-compressed) of source GeoJSON data
+     * @throws IOException if incorrect local path is provided or there was a problem with downloading the file
+     */
+    private static InputStream createInputStream(String argument) throws IOException {
+        if (Files.exists(Paths.get(argument))) {
+            return new FileInputStream(argument);
+        } else {
+            String url = "https://github.com/evansiroky/timezone-boundary-builder/releases/download/" + argument + "/timezones-with-oceans.geojson.zip";
+            return new URL(url).openStream();
+        }
+    }
+
+    /**
+     * Reads the zip-compressed input stream of GeoJSON, converts its data to proto and writes
+     * each GeoJSON feature as a separate entry into a tar file, which is compressed with ZStandard
+     * algorithm at the end
+     * @param argument
+     * @param outputPath
+     */
+    private static void writeTarZStdProto(String argument, String outputPath) {
+        try (ZipInputStream zipInputStream = new ZipInputStream(createInputStream(argument))) {
             zipInputStream.getNextEntry();
             Geojson.FeatureCollection featureCollection = Builder.buildProto(new ObjectMapper().readValue(zipInputStream, FeatureCollection.class));
-            File outputFile = new File(outputPath);
-            try (SevenZOutputFile out = new SevenZOutputFile(outputFile)) {
+            try (TarArchiveOutputStream out =
+                         new TarArchiveOutputStream(
+                                 new ZstdCompressorOutputStream(new FileOutputStream(outputPath), 22))) {
                 for (Geojson.Feature feature : featureCollection.getFeaturesList()) {
-                    SevenZArchiveEntry entry = out.createArchiveEntry(outputFile, feature.getProperties(0).getValueString());
+                    TarArchiveEntry entry = new TarArchiveEntry(feature.getProperties(0).getValueString());
+                    byte[] bytes = feature.toByteArray();
+                    entry.setSize(bytes.length);
                     out.putArchiveEntry(entry);
-                    out.write(feature.toByteArray());
+                    out.write(bytes);
                     out.closeArchiveEntry();
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Couldn't load the data", e);
+            throw new RuntimeException("Couldn't prepare the data", e);
         }
     }
 
     public static void main(String[] args) {
-        String version = args[0];
+        String argument = args[0];
         String outputPath = args[1];
-        writeSevenZProto(version, outputPath);
+        writeTarZStdProto(argument, outputPath);
     }
 }
