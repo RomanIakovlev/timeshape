@@ -26,12 +26,12 @@ Timeshape is published on Maven Central. The coordinates are the following:
 
 ## Using the library
 
-The user API of library is in `net.iakovlev.TimeZoneEngine` class. To use it, follow these steps:
+The user API of library is in `net.iakovlev.timeshape.TimeZoneEngine` class. To use it, follow these steps:
     
 #### Initialization
 Initialize the class with the data for the whole world:
 ```java
-import net.iakovlev.TimeZoneEngine;
+import net.iakovlev.timeshape.TimeZoneEngine;
 TimeZoneEngine engine = TimeZoneEngine.initialize();
 ```
 Or, alternatively, initialize it with some bounding box only, to reduce memory usage:
