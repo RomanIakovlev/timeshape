@@ -23,6 +23,9 @@ lazy val timeshape = (project in file("."))
 lazy val builderArgument = settingKey[String](
   "Argument to pass to builder, either local path to source data file or version to download")
 
+lazy val releaseTask = taskKey[Unit](
+  "Publishes an artifact and optionally makes a release if version is not a snapshot")
+
 lazy val core = (project in file("core"))
   .settings(commonSettings)
   .settings(
@@ -51,7 +54,12 @@ lazy val core = (project in file("core"))
         log.info("Timeshape resource exists, skipping creation")
       }
       Def.task(Seq(outputFile))
-    }.taskValue
+    }.taskValue,
+    releaseTask := {
+      publish.value
+      val buildState = state.value
+      if (!isSnapshot.value) Command.process("sonatypeRelease", buildState)
+    }
   )
   .dependsOn(`geojson-proto`)
 
