@@ -1,7 +1,7 @@
 import scala.sys.process._
 
 val dataVersion = "2018d"
-val softwareVersion = "6-SNAPSHOT"
+val softwareVersion = "6"
 val `commons-compress` = Seq(
   "org.apache.commons" % "commons-compress" % "1.18",
   "com.github.luben" % "zstd-jni" % "1.3.7-1"
