@@ -3,8 +3,6 @@ set -o errexit
 set -o nounset
 set -o verbose
 
-sbt test
-
 if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     openssl aes-256-cbc -K $encrypted_aae76eb822dd_key -iv $encrypted_aae76eb822dd_iv \
         -in travis.gpg.enc -out travis.gpg -d
@@ -28,5 +26,7 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
 	EOF
 
     # Build and publish
-    sbt publish sonatypeRelease
+    sbt test releaseTask
+else
+    sbt test
 fi
