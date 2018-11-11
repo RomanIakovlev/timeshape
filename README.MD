@@ -3,15 +3,15 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.iakovlev/timeshape/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.iakovlev/timeshape/)
 ![Build status](https://travis-ci.com/RomanIakovlev/timeshape.svg?branch=master)
 
-## Quote
-> “Time is an illusion.”
->
-> ― **Albert Einstein**
-
 Timeshape is a Java library that can be used to determine to which time zone a given geo coordinate belongs.
 It's based on data published at 
 [https://github.com/evansiroky/timezone-boundary-builder/releases](https://github.com/evansiroky/timezone-boundary-builder/releases),
 which itself is inherited from the OpenStreetMap data.
+
+## Quote
+> “Time is an illusion.”
+>
+> ― **Albert Einstein**
 
 ## Getting started
 
@@ -21,7 +21,7 @@ Timeshape is published on Maven Central. The coordinates are the following:
 <dependency>
     <groupId>net.iakovlev</groupId>
     <artifactId>timeshape</artifactId>
-    <version>2018d.5</version>
+    <version>2018d.6</version>
 </dependency>
 ``` 
 
@@ -43,7 +43,7 @@ It is important to mention that for the time zone to be loaded by the second met
 it must be covered by the bounding box completely, not just intersect with it.
 
 During initialization, the data is read from resource and the index is built. 
-Initialization takes a significant amount of time (several seconds), so do it only once in program lifetime.
+Initialization takes a significant amount of time (approximately 1 second), so do it only once in program lifetime.
 
 #### Query for `java.time.ZoneId`:
 Once initialization is completed, you can query the `ZoneId` based on latitude and longitude:
@@ -66,7 +66,7 @@ source data is quite big, and using it as is would impose too high memory and ar
 of Timeshape.
 
 Timeshape currently uses compressed [protocol buffers](https://developers.google.com/protocol-buffers/) 
-(a.k.a. protobuf) as the target data format. The protobuf data is compressed using 7Zip method, which allows to reach 
+(a.k.a. protobuf) as the target data format. The protobuf data is compressed using ZStandard method, which allows to reach 
 relatively small artifact size: 19 MB total JAR size vs 57 MB for the source data only (GeoJSON compressed with zip). 
 The biggest win in terms of size is, however, not due to efficiency of protobuf vs GeoJSON, but due to the fact that `float` 
 is used instead of `double` to store geo coordinates in protobuf. 
