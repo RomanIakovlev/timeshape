@@ -53,6 +53,75 @@ final class Index {
         return Optional.empty();
     }
 
+    ArrayList<SameZoneSpan> query3(double[] line) {
+
+        Polyline polyline = new Polyline();
+        ArrayList<Point> points = new ArrayList<>(line.length / 2);
+        for (int i = 0; i < line.length - 1; i += 2) {
+            Point p = new Point(line[i + 1], line[i]);
+            points.add(p);
+        }
+//        log.info("Got " + points.size() + " points");
+        polyline.startPath(points.get(0));
+        for (int i = 1; i < points.size(); i += 1) {
+            polyline.lineTo(points.get(i));
+        }
+//        log.info("Got " + polyline.getSegmentCount() + " segments");
+        QuadTree.QuadTreeIterator iterator = quadTree.getIterator(polyline, 0);
+
+        ArrayList<Entry> potentiallyMatchingEntries = new ArrayList<>();
+
+        for (int i = iterator.next(); i >= 0; i = iterator.next()) {
+            int element = quadTree.getElement(i);
+            Entry entry = zoneIds.get(element);
+            potentiallyMatchingEntries.add(entry);
+        }
+
+//        log.info("Got " + potentiallyMatchingEntries.size() + " potentially matching geometries");
+
+        ArrayList<SameZoneSpan> sameZoneSegments = new ArrayList<>();
+        Entry currentEntry = null;
+        // 1. find next matching geometry
+        // 2. match against same geometry until it doesn't match anymore
+        // 3. for every match, add to currentSegment
+        // 4. when it doesn't match anymore, save currentSegment to sameZoneSegments and start new one
+        // 5. goto 1.
+        int index = 0;
+        while (index < points.size()) {
+            Point p = points.get(index);
+//            log.info("Processing point {} at index {}", p.toString(), index);
+            if (currentEntry == null) {
+//                log.info("currentEntry is null");
+                // find next matching geometry
+                for (Entry e : potentiallyMatchingEntries) {
+                    if (GeometryEngine.contains(e.geometry, p, spatialReference)) {
+                        currentEntry = e;
+//                        log.info("Found next matching geometry: {}", e.zoneId.getId());
+                        break;
+                    }
+                }
+                if (currentEntry == null) {
+                    throw new RuntimeException("no matching geometries found");
+                }
+            }
+            if (GeometryEngine.contains(currentEntry.geometry, p, spatialReference)) {
+//                log.info("Adding point {} to current segment", p.toString());
+                if (index == points.size() - 1) {
+//                    log.info("Last segment is complete");
+                    sameZoneSegments.add(new SameZoneSpan(currentEntry.zoneId, index));
+                }
+                index++;
+            } else {
+                sameZoneSegments.add(new SameZoneSpan(currentEntry.zoneId, index - 1));
+                currentEntry = null;
+//                log.info("Current segment is complete, starting new one");
+            }
+        }
+
+        return sameZoneSegments;
+    }
+
+
     ArrayList<SameZoneSpan> query2(double[] line) {
         ArrayList<SameZoneSpan> sameZoneSegments = new ArrayList<>();
         Entry currentEntry = null;
@@ -61,7 +130,7 @@ final class Index {
             Point p = new Point(line[i + 1], line[i]);
             points.add(p);
         }
-        log.info("Got " + points.size() + " points");
+//        log.info("Got " + points.size() + " points");
         QuadTree.QuadTreeIterator iterator = quadTree.getIterator();
         int index = 0;
         while (index < points.size()) {
@@ -88,7 +157,7 @@ final class Index {
                 index++;
             } else {
                 sameZoneSegments.add(new SameZoneSpan(currentEntry.zoneId, index - 1));
-                log.info("point {}, at index {} belongs to next span", p.toString(), index);
+//                log.info("point {}, at index {} belongs to next span", p.toString(), index);
                 currentEntry = null;
             }
         }

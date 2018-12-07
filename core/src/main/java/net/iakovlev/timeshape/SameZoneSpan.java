@@ -1,12 +1,19 @@
 package net.iakovlev.timeshape;
 
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.Objects;
 
 public final class SameZoneSpan {
-    public final ZoneId zoneId;
-    public final int endIndex;
+    public ZoneId getZoneId() {
+        return zoneId;
+    }
+
+    public int getEndIndex() {
+        return endIndex;
+    }
+
+    private final ZoneId zoneId;
+    private final int endIndex;
 
     @Override
     public int hashCode() {
@@ -28,7 +35,7 @@ public final class SameZoneSpan {
         return String.format("%s: end index %d", zoneId.getId(), endIndex);
     }
 
-    public SameZoneSpan(ZoneId zoneId, int endIndex) {
+    SameZoneSpan(ZoneId zoneId, int endIndex) {
         this.zoneId = zoneId;
         this.endIndex = endIndex;
     }

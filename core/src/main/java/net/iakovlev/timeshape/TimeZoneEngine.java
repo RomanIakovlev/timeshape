@@ -109,6 +109,10 @@ public final class TimeZoneEngine {
         return index.query2(points);
     }
 
+    public ArrayList<SameZoneSpan> query3(double[] points) {
+        return index.query3(points);
+    }
+
     /**
      * Returns all the time zones that can be looked up.
      *
