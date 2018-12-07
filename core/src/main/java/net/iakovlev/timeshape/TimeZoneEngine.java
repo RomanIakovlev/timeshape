@@ -97,6 +97,18 @@ public final class TimeZoneEngine {
         return index.query(latitude, longitude);
     }
 
+    public ArrayList<SameZoneSegment> query(double[] points) {
+        return index.query(points);
+    }
+
+    public ArrayList<SameZoneSegment> query1(double[] points) {
+        return index.query1(points);
+    }
+
+    public ArrayList<SameZoneSpan> query2(double[] points) {
+        return index.query2(points);
+    }
+
     /**
      * Returns all the time zones that can be looked up.
      *
