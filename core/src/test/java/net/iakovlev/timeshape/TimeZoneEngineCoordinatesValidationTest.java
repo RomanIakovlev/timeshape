@@ -1,4 +1,4 @@
-package net.iakovlev.timeshape.test;
+package net.iakovlev.timeshape;
 
 import net.iakovlev.timeshape.TimeZoneEngine;
 import org.junit.Test;
@@ -12,7 +12,7 @@ public class TimeZoneEngineCoordinatesValidationTest {
     @Test
     public void testMinimumLatitudeOutOfBounds() {
         try {
-            TimeZoneEngine.initialize(-100, 0, 0, 0);
+            TimeZoneEngine.initialize(-100, 0, 0, 0, false);
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "minimum latitude -100.000000 is out of range: must be -90 <= latitude <= 90;");
         }
@@ -20,7 +20,7 @@ public class TimeZoneEngineCoordinatesValidationTest {
     @Test
     public void testMinimumLongitudeOutOfBounds() {
         try {
-            TimeZoneEngine.initialize(0, -190, 0, 0);
+            TimeZoneEngine.initialize(0, -190, 0, 0, false);
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "minimum longitude -190.000000 is out of range: must be -180 <= longitude <= 180;");
         }
@@ -28,7 +28,7 @@ public class TimeZoneEngineCoordinatesValidationTest {
     @Test
     public void testMaximumLatitudeOutOfBounds() {
         try {
-            TimeZoneEngine.initialize(0, 0, 100, 0);
+            TimeZoneEngine.initialize(0, 0, 100, 0, false);
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "maximum latitude 100.000000 is out of range: must be -90 <= latitude <= 90;");
         }
@@ -36,7 +36,7 @@ public class TimeZoneEngineCoordinatesValidationTest {
     @Test
     public void testMaximumLongitudeOutOfBounds() {
         try {
-            TimeZoneEngine.initialize(0, 0, 0, 190);
+            TimeZoneEngine.initialize(0, 0, 0, 190, false);
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "maximum longitude 190.000000 is out of range: must be -180 <= longitude <= 180;");
         }
@@ -44,7 +44,7 @@ public class TimeZoneEngineCoordinatesValidationTest {
     @Test
     public void testInconsistentLatitudes() {
         try {
-            TimeZoneEngine.initialize(0, 0, -1, 0);
+            TimeZoneEngine.initialize(0, 0, -1, 0, false);
         } catch (IllegalArgumentException ex) {
             assertEquals(ex.getMessage(), "maximum latitude -1.000000 is less than minimum latitude 0.000000;");
         }
@@ -52,7 +52,7 @@ public class TimeZoneEngineCoordinatesValidationTest {
     @Test
     public void testInconsistentLongitudes() {
         try {
-            TimeZoneEngine.initialize(0, 0, 0, -1);
+            TimeZoneEngine.initialize(0, 0, 0, -1, false);
         } catch (IllegalArgumentException ex) {
             assertEquals(ex.getMessage(), "maximum longitude -1.000000 is less than minimum longitude 0.000000;");
         }
@@ -60,7 +60,7 @@ public class TimeZoneEngineCoordinatesValidationTest {
     @Test
     public void testMultipleErrors() {
         try {
-            TimeZoneEngine.initialize(0, 0, -1, -1);
+            TimeZoneEngine.initialize(0, 0, -1, -1, false);
         } catch (IllegalArgumentException ex) {
             assertEquals(ex.getMessage(), "maximum latitude -1.000000 is less than minimum latitude 0.000000; maximum longitude -1.000000 is less than minimum longitude 0.000000;");
         }

@@ -1,6 +1,6 @@
 import scala.sys.process._
 
-val dataVersion = "2018d"
+val dataVersion = "2019b"
 val softwareVersion = "7-SNAPSHOT"
 val `commons-compress` = Seq(
   "org.apache.commons" % "commons-compress" % "1.18",
@@ -17,7 +17,7 @@ val commonSettings = Seq(
 
 lazy val timeshape = (project in file("."))
   .settings(commonSettings)
-  .aggregate(core, builder, testApp, `geojson-proto`)
+  .aggregate(core, builder, testApp, `geojson-proto`, benchmarks)
   .settings(skip in publish := true)
 
 lazy val builderArgument = settingKey[String](
@@ -35,7 +35,8 @@ lazy val core = (project in file("core"))
       "junit" % "junit" % "4.12" % Test,
       "com.novocode" % "junit-interface" % "0.11" % Test
         exclude ("junit", "junit-dep"),
-      "org.slf4j" % "slf4j-api" % "1.7.25"
+      "org.slf4j" % "slf4j-api" % "1.7.25",
+      "com.fasterxml.jackson.core" % "jackson-core" % "2.9.6"
     ) ++ `commons-compress`,
     name := "timeshape",
     publishTo := sonatypePublishTo.value,
@@ -70,7 +71,7 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
     skip in publish := true, // a stopgap solution for https://github.com/RomanIakovlev/timeshape/issues/20
     version := "1.0.0",
     PB.targets in Compile := Seq(
-      PB.gens.java -> (sourceManaged in Compile).value
+      PB.gens.java("3.10.0") -> (sourceManaged in Compile).value
     )
   )
 

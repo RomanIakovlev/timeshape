@@ -1,4 +1,4 @@
-package net.iakovlev.timeshape.benchmarks;
+package net.iakovlev.timeshape;
 
 import net.iakovlev.timeshape.TimeZoneEngine;
 import org.openjdk.jmh.annotations.*;
@@ -33,31 +33,16 @@ public class PolylineQueryBenchmark {
         }
     }
 
-
     @Benchmark
-    public void testOldAPI(BenchmarkState state, Blackhole blackhole) {
+    public void testQueryPoints(BenchmarkState state, Blackhole blackhole) {
         for (int i = 0; i < state.points.length - 1; i += 2) {
-            blackhole.consume(state.engine.query(state.points[i + 1], state.points[i]));
+            blackhole.consume(state.engine.query(state.points[i], state.points[i+1]));
         }
     }
 
-//    @Benchmark
-    public void testNewAPI(BenchmarkState state, Blackhole blackhole) {
-        blackhole.consume(state.engine.query(state.points));
-    }
-
-//    @Benchmark
-    public void testNewAPI1(BenchmarkState state, Blackhole blackhole) {
-        blackhole.consume(state.engine.query1(state.points));
-    }
-
     @Benchmark
-    public void testNewAPI2(BenchmarkState state, Blackhole blackhole) {
-        blackhole.consume(state.engine.query2(state.points));
+    public void testQueryPolyline(BenchmarkState state, Blackhole blackhole) {
+        blackhole.consume(state.engine.queryPolyline(state.points));
     }
 
-    @Benchmark
-    public void testNewAPI3(BenchmarkState state, Blackhole blackhole) {
-        blackhole.consume(state.engine.query3(state.points));
-    }
 }
