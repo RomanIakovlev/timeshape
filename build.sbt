@@ -13,7 +13,6 @@ val commonSettings = Seq(
   crossPaths := false,
   autoScalaLibrary := false,
   publishMavenStyle := true,
-  packageOptions in (Compile, packageBin) += Package.ManifestAttributes("Automatic-Module-Name" -> "net.iakovlev.timeshape"),
   javacOptions ++= Seq("-Xdoclint:none")
 )
 
@@ -42,6 +41,7 @@ lazy val core = (project in file("core"))
     ) ++ `commons-compress`,
     name := "timeshape",
     publishTo := sonatypePublishTo.value,
+    packageOptions in (Compile, packageBin) += Package.ManifestAttributes("Automatic-Module-Name" -> "net.iakovlev.timeshape"),
     resourceGenerators in Compile += Def.taskDyn {
       val log = streams.value.log
       val outputPath = (resourceManaged in Compile).value
@@ -70,8 +70,7 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
   .settings(commonSettings)
   .settings(
     publishTo := sonatypePublishTo.value,
-    skip in publish := true, // a stopgap solution for https://github.com/RomanIakovlev/timeshape/issues/20
-    version := "1.0.0",
+    version := "1.1.0-SNAPSHOT",
     PB.targets in Compile := Seq(
       PB.gens.java("3.10.0") -> (sourceManaged in Compile).value
     )
