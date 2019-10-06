@@ -41,7 +41,10 @@ public class TimeZoneEngineTest {
 
     @Test
     public void testMultipleTimeZonesInResponse() {
-        assertEquals(List.of(ZoneId.of("Asia/Shanghai"), ZoneId.of("Asia/Urumqi")), engine.query(39.601, 79.201));
+        List<ZoneId> expected = new java.util.ArrayList<>();
+        expected.add(ZoneId.of("Asia/Shanghai"));
+        expected.add(ZoneId.of("Asia/Urumqi"));
+        assertEquals(expected, engine.query(39.601, 79.201));
     }
 
     @Test

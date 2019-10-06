@@ -12,7 +12,9 @@ val commonSettings = Seq(
   version := s"$dataVersion.$softwareVersion",
   crossPaths := false,
   autoScalaLibrary := false,
-  publishMavenStyle := true
+  publishMavenStyle := true,
+  packageOptions in (Compile, packageBin) += Package.ManifestAttributes("Automatic-Module-Name" -> "net.iakovlev.timeshape"),
+  javacOptions ++= Seq("-Xdoclint:none")
 )
 
 lazy val timeshape = (project in file("."))
