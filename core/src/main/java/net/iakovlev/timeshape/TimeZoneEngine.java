@@ -1,15 +1,10 @@
 package net.iakovlev.timeshape;
 
-import com.esri.core.geometry.Envelope2D;
+import com.esri.core.geometry.Envelope;
 import net.iakovlev.timeshape.proto.Geojson;
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
-import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream;
-import org.apache.commons.compress.utils.IOUtils;
-import org.apache.commons.compress.utils.SeekableInMemoryByteChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,8 +88,24 @@ public final class TimeZoneEngine {
      * @return {@code Optional<ZoneId>#of(ZoneId)} if input corresponds
      * to some zone, or {@link Optional#empty()} otherwise.
      */
-    public Optional<ZoneId> query(double latitude, double longitude) {
+    public List<ZoneId> query(double latitude, double longitude) {
         return index.query(latitude, longitude);
+    }
+
+    /**
+     * Queries the {@link TimeZoneEngine} for a {@link java.time.ZoneId}
+     * based on sequence of geo coordinates
+     * @param points array of doubles representing the sequence of geo coordinates
+     *               Must have the following shape: <code>{lat_1, lon_1, lat_2, lon_2, ..., lat_N, lon_N}</code>
+     * @return Sequence of {@link SameZoneSpan}, where {@link SameZoneSpan#getEndIndex()} represents the last index
+     * in the {@param points} array, which belong to the value of {@link SameZoneSpan#getZoneIds()}
+     * E.g. for {@param points} == <code>{lat_1, lon_1, lat_2, lon_2, lat_3, lon_3}</code>, that is, a polyline of
+     * 3 points: point_1, point_2, and point_3, and presuming point_1 belongs to Etc/GMT+1, point_2 belongs to Etc/GMT+2,
+     * and point_3 belongs to Etc/Gmt+3, the result will be:
+     * <code>{SameZoneSpan(Etc/Gmt+1, 1), SameZoneSpan(Etc/Gmt+2, 3), SameZoneSpan(Etc/Gmt+3, 5)}</code>
+     */
+    public List<SameZoneSpan> queryPolyline(double[] points) {
+        return index.queryPolyline(points);
     }
 
     /**
@@ -112,8 +123,17 @@ public final class TimeZoneEngine {
      *
      * @return an initialized instance of {@link TimeZoneEngine}
      */
+    public static TimeZoneEngine initialize(boolean accelerateGeometry) {
+        return initialize(MIN_LAT, MIN_LON, MAX_LAT, MAX_LON, accelerateGeometry);
+    }
+    /**
+     * Creates a new instance of {@link TimeZoneEngine} and initializes it.
+     * This is a blocking long running operation.
+     *
+     * @return an initialized instance of {@link TimeZoneEngine}
+     */
     public static TimeZoneEngine initialize() {
-        return initialize(MIN_LAT, MIN_LON, MAX_LAT, MAX_LON);
+        return initialize(MIN_LAT, MIN_LON, MAX_LAT, MAX_LON, false);
     }
 
     /**
@@ -122,7 +142,7 @@ public final class TimeZoneEngine {
      *
      * @return an initialized instance of {@link TimeZoneEngine}
      */
-    public static TimeZoneEngine initialize(double minLat, double minLon, double maxLat, double maxLon) {
+    public static TimeZoneEngine initialize(double minLat, double minLon, double maxLat, double maxLon, boolean accelerateGeometry) {
         log.info("Initializing with bounding box: {}, {}, {}, {}", minLat, minLon, maxLat, maxLon);
         validateCoordinates(minLat, minLon, maxLat, maxLon);
         try (InputStream resourceAsStream = TimeZoneEngine.class.getResourceAsStream("/data.tar.zstd");
@@ -142,13 +162,14 @@ public final class TimeZoneEngine {
                     throw new RuntimeException(ex);
                 }
             });
-            int numberOfTimezones = 456; // can't get number of entries from tar, need to set manually
-            Envelope2D boundaries = new Envelope2D(minLon, minLat, maxLon, maxLat);
+            int numberOfTimezones = 449; // can't get number of entries from tar, need to set manually
+            Envelope boundaries = new Envelope(minLon, minLat, maxLon, maxLat);
             return new TimeZoneEngine(
                     Index.build(
                             featureStream,
                             numberOfTimezones,
-                            boundaries));
+                            boundaries,
+                            accelerateGeometry));
         } catch (NullPointerException | IOException e) {
             log.error("Unable to read resource file", e);
             throw new RuntimeException(e);

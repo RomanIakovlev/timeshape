@@ -1,6 +1,6 @@
 import scala.sys.process._
 
-val dataVersion = "2018d"
+val dataVersion = "2019b"
 val softwareVersion = "7-SNAPSHOT"
 val `commons-compress` = Seq(
   "org.apache.commons" % "commons-compress" % "1.18",
@@ -12,12 +12,13 @@ val commonSettings = Seq(
   version := s"$dataVersion.$softwareVersion",
   crossPaths := false,
   autoScalaLibrary := false,
-  publishMavenStyle := true
+  publishMavenStyle := true,
+  javacOptions ++= Seq("-Xdoclint:none")
 )
 
 lazy val timeshape = (project in file("."))
   .settings(commonSettings)
-  .aggregate(core, builder, testApp, `geojson-proto`)
+  .aggregate(core, builder, testApp, `geojson-proto`, benchmarks)
   .settings(skip in publish := true)
 
 lazy val builderArgument = settingKey[String](
@@ -35,10 +36,12 @@ lazy val core = (project in file("core"))
       "junit" % "junit" % "4.12" % Test,
       "com.novocode" % "junit-interface" % "0.11" % Test
         exclude ("junit", "junit-dep"),
-      "org.slf4j" % "slf4j-api" % "1.7.25"
+      "org.slf4j" % "slf4j-api" % "1.7.25",
+      "com.fasterxml.jackson.core" % "jackson-core" % "2.9.6"
     ) ++ `commons-compress`,
     name := "timeshape",
     publishTo := sonatypePublishTo.value,
+    packageOptions in (Compile, packageBin) += Package.ManifestAttributes("Automatic-Module-Name" -> "net.iakovlev.timeshape"),
     resourceGenerators in Compile += Def.taskDyn {
       val log = streams.value.log
       val outputPath = (resourceManaged in Compile).value
@@ -67,10 +70,9 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
   .settings(commonSettings)
   .settings(
     publishTo := sonatypePublishTo.value,
-    skip in publish := true, // a stopgap solution for https://github.com/RomanIakovlev/timeshape/issues/20
-    version := "1.0.0",
+    version := "1.1.0-SNAPSHOT",
     PB.targets in Compile := Seq(
-      PB.gens.java -> (sourceManaged in Compile).value
+      PB.gens.java("3.10.0") -> (sourceManaged in Compile).value
     )
   )
 
@@ -94,3 +96,9 @@ lazy val testApp = (project in file("test-app"))
                                 "ch.qos.logback" % "logback-classic" % "1.2.3")
   )
   .dependsOn(core)
+
+lazy val benchmarks = (project in file("benchmarks"))
+  .settings(commonSettings)
+  .settings(skip in publish := true)
+  .dependsOn(core)
+  .enablePlugins(JmhPlugin)
