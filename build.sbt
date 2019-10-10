@@ -1,4 +1,5 @@
 import scala.sys.process._
+import scala.util.parsing.json._
 
 val dataVersion = "2019b"
 val softwareVersion = "7-SNAPSHOT"
@@ -27,10 +28,24 @@ lazy val builderArgument = settingKey[String](
 lazy val releaseTask = taskKey[Unit](
   "Publishes an artifact and optionally makes a release if version is not a snapshot")
 
+def latestRelease: String = {
+  val src = scala.io.Source.fromURL("https://api.github.com/repos/evansiroky/timezone-boundary-builder/releases/latest")
+  val json = src.mkString
+  json
+}
+
+def parseReleaseName(jsonString: String): String = {
+  val json:Option[Any] = JSON.parseFull(jsonString)
+  val map:Map[String,Any] = json.get.asInstanceOf[Map[String, Any]]
+  val name:String = map("name").asInstanceOf[String]
+  println("Current timezone release is : " + name)
+  name
+}
+
 lazy val core = (project in file("core"))
   .settings(commonSettings)
   .settings(
-    builderArgument := dataVersion,
+    builderArgument := parseReleaseName(latestRelease),
     libraryDependencies ++= Seq(
       "com.esri.geometry" % "esri-geometry-api" % "2.2.1",
       "junit" % "junit" % "4.12" % Test,
