@@ -91,12 +91,6 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
     )
   )
 
-val sampleStringTask = taskKey[String]("A sample string task.")
-
-lazy val library = (project in file("library"))
-  .settings(
-    sampleStringTask := System.getProperty("user.home")
-  )
 
 lazy val builder = (project in file("builder"))
   .settings(commonSettings)
