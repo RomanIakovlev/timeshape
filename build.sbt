@@ -1,5 +1,4 @@
 import scala.sys.process._
-import scala.util.parsing.json._
 
 val dataVersion = "2019b"
 val softwareVersion = "7-SNAPSHOT"
@@ -28,24 +27,16 @@ lazy val builderArgument = settingKey[String](
 lazy val releaseTask = taskKey[Unit](
   "Publishes an artifact and optionally makes a release if version is not a snapshot")
 
-def latestRelease: String = {
+lazy val getLatestRelease: String = {
   val src = scala.io.Source.fromURL("https://api.github.com/repos/evansiroky/timezone-boundary-builder/releases/latest")
   val json = src.mkString
   json
 }
 
-def parseReleaseName(jsonString: String): String = {
-  val json:Option[Any] = JSON.parseFull(jsonString)
-  val map:Map[String,Any] = json.get.asInstanceOf[Map[String, Any]]
-  val name:String = map("name").asInstanceOf[String]
-  println("Current timezone release is : " + name)
-  name
-}
-
 lazy val core = (project in file("core"))
   .settings(commonSettings)
   .settings(
-    builderArgument := parseReleaseName(latestRelease),
+    builderArgument := dataVersion,
     libraryDependencies ++= Seq(
       "com.esri.geometry" % "esri-geometry-api" % "2.2.1",
       "junit" % "junit" % "4.12" % Test,
@@ -63,7 +54,16 @@ lazy val core = (project in file("core"))
       val outputFile = outputPath / "data.tar.zstd"
       outputPath.mkdirs()
       if (!outputFile.exists()) {
-        log.info("Timeshape resource doesn't exist, creating")
+        log.info("Timeshape resource doesn't exist in this host, creating it now.")
+        val jsonString = getLatestRelease
+        val latest: String = _root_.io.circe.parser.parse(jsonString)
+          .flatMap(_.hcursor.downField("name").as[String])
+          .getOrElse("Unknown")
+        if (latest == builderArgument.value)
+          log.info("Latest timezone data release is : " + latest)
+        else
+          log.warn("Latest timezone data release is : " + latest)
+        log.info("Downloading timezone data with version: " + builderArgument.value)
         val command =
           s"java -jar ${(builder / assembly).value} ${builderArgument.value} ${outputFile.getAbsolutePath}"
         log.info(s"running $command")
@@ -89,6 +89,13 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
     PB.targets in Compile := Seq(
       PB.gens.java("3.10.0") -> (sourceManaged in Compile).value
     )
+  )
+
+val sampleStringTask = taskKey[String]("A sample string task.")
+
+lazy val library = (project in file("library"))
+  .settings(
+    sampleStringTask := System.getProperty("user.home")
   )
 
 lazy val builder = (project in file("builder"))
