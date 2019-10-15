@@ -1,4 +1,5 @@
 import scala.sys.process._
+import _root_.io.circe.parser._
 
 val dataVersion = "2019b"
 val softwareVersion = "7-SNAPSHOT"
@@ -56,7 +57,7 @@ lazy val core = (project in file("core"))
       if (!outputFile.exists()) {
         log.info("Timeshape resource doesn't exist in this host, creating it now.")
         val jsonString = getLatestRelease
-        val latest: String = io.circe.parser.parse(jsonString)
+        val latest: String = parse(jsonString)
           .flatMap(_.hcursor.downField("name").as[String])
           .getOrElse("Unknown")
         if (latest != builderArgument.value) {
