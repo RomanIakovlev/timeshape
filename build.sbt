@@ -1,4 +1,5 @@
 import scala.sys.process._
+import _root_.io.circe.parser._
 
 val dataVersion = "2019b"
 val softwareVersion = "7-SNAPSHOT"
@@ -27,6 +28,12 @@ lazy val builderArgument = settingKey[String](
 lazy val releaseTask = taskKey[Unit](
   "Publishes an artifact and optionally makes a release if version is not a snapshot")
 
+lazy val getLatestRelease: String = {
+  val src = scala.io.Source.fromURL("https://api.github.com/repos/evansiroky/timezone-boundary-builder/releases/latest")
+  val json = src.mkString
+  json
+}
+
 lazy val core = (project in file("core"))
   .settings(commonSettings)
   .settings(
@@ -48,7 +55,15 @@ lazy val core = (project in file("core"))
       val outputFile = outputPath / "data.tar.zstd"
       outputPath.mkdirs()
       if (!outputFile.exists()) {
-        log.info("Timeshape resource doesn't exist, creating")
+        log.info("Timeshape resource doesn't exist in this host, creating it now.")
+        val jsonString = getLatestRelease
+        val latest: String = parse(jsonString)
+          .flatMap(_.hcursor.downField("name").as[String])
+          .getOrElse("Unknown")
+        if (latest != builderArgument.value) {
+          log.warn(s"Latest timezone data release is : $latest, while this build uses ${builderArgument.value}")
+        }
+        log.info("Downloading timezone data with version: " + builderArgument.value)
         val command =
           s"java -jar ${(builder / assembly).value} ${builderArgument.value} ${outputFile.getAbsolutePath}"
         log.info(s"running $command")
@@ -75,6 +90,7 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
       PB.gens.java("3.10.0") -> (sourceManaged in Compile).value
     )
   )
+
 
 lazy val builder = (project in file("builder"))
   .settings(commonSettings)
