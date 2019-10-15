@@ -56,13 +56,12 @@ lazy val core = (project in file("core"))
       if (!outputFile.exists()) {
         log.info("Timeshape resource doesn't exist in this host, creating it now.")
         val jsonString = getLatestRelease
-        val latest: String = _root_.io.circe.parser.parse(jsonString)
+        val latest: String = io.circe.parser.parse(jsonString)
           .flatMap(_.hcursor.downField("name").as[String])
           .getOrElse("Unknown")
-        if (latest == builderArgument.value)
-          log.info("Latest timezone data release is : " + latest)
-        else
-          log.warn("Latest timezone data release is : " + latest)
+        if (latest != builderArgument.value) {
+          log.warn(s"Latest timezone data release is : $latest, while this build uses ${builderArgument.value}")
+        }
         log.info("Downloading timezone data with version: " + builderArgument.value)
         val command =
           s"java -jar ${(builder / assembly).value} ${builderArgument.value} ${outputFile.getAbsolutePath}"
