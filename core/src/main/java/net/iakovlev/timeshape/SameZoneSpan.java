@@ -16,7 +16,8 @@ public final class SameZoneSpan {
     }
 
     /**
-     * Last index in the
+     * Last index in the array of points (the polyline) which has the same ZoneId.
+     * See {@link TimeZoneEngine#queryPolyline(double[])} for explanation.
      * @return
      */
     public int getEndIndex() {

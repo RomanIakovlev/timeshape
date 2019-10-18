@@ -21,7 +21,7 @@ Timeshape is published on Maven Central. The coordinates are the following:
 <dependency>
     <groupId>net.iakovlev</groupId>
     <artifactId>timeshape</artifactId>
-    <version>2018d.6</version>
+    <version>2019b.7</version>
 </dependency>
 ``` 
 
@@ -54,78 +54,38 @@ import java.time.ZoneId;
 Optional<ZoneId> maybeZoneId = engine.query(52.52, 13.40);
 ``` 
 
-## Architecture
-This section describes how the Timeshape is designed, which technologies it uses, and how to build it yourself.
-This might be helpful if you want to contribute to it, or just to understand how it works.
+#### Multiple time zones for single geo point
+Starting from release 2019b.7, the data source from which Timeshape is built contains overlapping geometries.
+In other words, some geo points can simultaneously belong to multiple time zones. To accommodate this,
+Timeshape has made the following change. It's now possible to query all the time zones, to which given
+geo point belongs:
 
-### Overview
-Timeshape is built around the idea of taking the source data with time zones in [GeoJSON](http://geojson.org/) format, 
-convert it into something more efficient to store and read than GeoJSON, and package converted data together with
-the code that can read and query it into a single artifact (JAR file). Efficiency is the key word here, because the
-source data is quite big, and using it as is would impose too high memory and artifact size requirements on the users
-of Timeshape.
+```java
+List<ZoneId> allZones = engine.queryAll(52.52, 13.40);
+```
 
-Timeshape currently uses compressed [protocol buffers](https://developers.google.com/protocol-buffers/) 
-(a.k.a. protobuf) as the target data format. The protobuf data is compressed using ZStandard method, which allows to reach 
-relatively small artifact size: 19 MB total JAR size vs 57 MB for the source data only (GeoJSON compressed with zip). 
-The biggest win in terms of size is, however, not due to efficiency of protobuf vs GeoJSON, but due to the fact that `float` 
-is used instead of `double` to store geo coordinates in protobuf. 
-This means, only 4+4=8 bytes are required for each point (latitude + longitude), instead of 8+8=16 bytes for `double`.
-Precision of `float` is good enough for the source data.
+The `Optional<ZoneId> query(double latitude, double longitude)` method is still there, and it still returns
+maximum one `ZoneId`. If given geo point belongs to multiple time zones, only single one will be returned.
+Which of multiple zones will be returned is entirely arbitrary. Because of this, method 
+`Optional<ZoneId> query(double latitude, double longitude)` is not suitable for use cases where such choice must 
+be deliberate. In such cases use `List<ZoneId> queryAll(double latitude, double longitude)` method and apply further
+business logic to its output to choose the right time zone. Consult file 
+https://raw.githubusercontent.com/evansiroky/timezone-boundary-builder/master/expectedZoneOverlaps.json
+for information about areas of the world where multiple time zones are to be expected.
 
-At runtime, the code reads the packaged data and build a spatial index for querying. It uses 
-[quad tree](https://en.wikipedia.org/wiki/Quadtree) for indexing, provided by the 
-[Esri geometry API](https://github.com/Esri/geometry-api-java) Java library.
+#### Querying polyline
+Timeshape supports querying of multiple sequential geo points (a polyline, e.g. a GPS trace) in an optimized way using method
+`List<SameZoneSpan> queryPolyline(double[] points)`. Performance tests (see `net.iakovlev.timeshape.PolylineQueryBenchmark`)
+show significant speedup of using this method for querying a polyline, comparing to separately querying each point from polyline 
+using `Optional<ZoneId> query(double latitude, double longitude)` method:
+```
+Benchmark                                  Mode  Cnt  Score   Error  Units
+PolylineQueryBenchmark.testQueryPoints    thrpt    5  2,188 ▒ 0,044  ops/s
+PolylineQueryBenchmark.testQueryPolyline  thrpt    5  4,073 ▒ 0,017  ops/s
+```
 
-### Build structure
-Timeshape uses [sbt](https://scala-sbt.org) as build system. The sbt build definition has 4 main projects:
-* geojson-protobuf
-* core
-* builder
-* testApp
-
-Below you'll find some information about those individual projects. 
-#### geojson-protobuf
-This project contains the protobuf definitions corresponding to GeoJSON format. 
-Those definitions are in file `geojson-proto/src/main/protobuf/geojson.proto`. Java code to read and write such protobuf
-messages is generated during compile time by [sbt-protobuf](https://github.com/sbt/sbt-protobuf) sbt plugin.
-Other projects (`core` and `builder`), which must read or write the protobuf, use those generated Java classes, and therefore
-depend on `geojson-protobuf` in classpath sense.
-
-#### core
-This project contains the logic to read the data into a quad tree and provide API for querying it. It's the main project
-with which the library users interact, and provides the main published artifact. It uses sbt feature called
-`resource generator` to create the protobuf file containing the time zone data. The code that actually generates the 
-protobuf data file is in the [builder](#builder) project. The resource generator is run by sbt automatically when necessary.
-
-#### builder
-This project is responsible for downloading the source data from Github and converting it from GeoJSON to protobuf format.
-It's usually called from the resource generator of `core` project, but can be run independently 
-(it's a standard Java application, after all).
-
-#### testApp
-It's a playground, more or less. It's used to experiment with the main Timeshape artifact produced 
-by the `core` project, particularly for the purpose of estimating its memory usage (see [Memory usage](#memory-usage)), 
-and maybe something else in the future.
-
-### Building
-If you want to build and run the Timeshape locally, follow these steps:
-
-1. Install sbt and JDK. It's proven to work on JDK 8, but newer versions might work too. Use latest versions, because
-changes of time zones happen regularly in real world, and only the latest JDK build might reflect them. 
-2. Go to the directory where the source code is checked out and run `sbt` command there.
-3. When sbt finishes to load the build definition and you see sbt console, you have several options:
-    * run `core/test` to execute the tests, they should pass.
-    * run `testApp/run` to run the test app. It will query the data for one time zone and print the memory usage.
-    * run `core/publishLocal` if you've made local modifications and want to use the modified version in your program.
-    Version must be set to snapshot for this to work best.
-
-### Memory usage
-The `testApp` project provides memory usage estimate by using [JOL](http://openjdk.java.net/projects/code-tools/jol/).
-The current version's estimated footprint is roughly 128 MB of memory when the data for the whole world is loaded.
-It is possible to further limit the memory usage by reducing the amount of time zones loaded. This is implemented by a call to
-`TimeZoneEngine.initialize(double minlat, double minlon, double maxlat, double maxlon)`.
-
+### Architecture
+See [dedicated document](docs/Architecture.md) for description of Timeshape internals.
 
 ### Versioning
 Version of Timeshape consist of data version and software version, divided by a '.' symbol. 

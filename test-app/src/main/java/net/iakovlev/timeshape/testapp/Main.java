@@ -5,7 +5,12 @@ import org.openjdk.jol.info.GraphLayout;
 import org.openjdk.jol.vm.VM;
 
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.lang.System.out;
 
@@ -27,7 +32,7 @@ public class Main {
             for (int j = 0; j < 100; j++) {
                 double latitude = (latMax - latMin) / 100 * i;
                 double longitude = (lonMax - lonMin) / 100 * i;
-                final List<ZoneId> result = engine.query(latitude, longitude);
+                final List<ZoneId> result = engine.queryAll(latitude, longitude);
                 if (result.size() > 1) {
                     String report = "Found multiple zones (" + result + ") for " + latitude + ", " + longitude;
                     if (!report.equals(prev)) {

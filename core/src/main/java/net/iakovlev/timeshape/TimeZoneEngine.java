@@ -85,11 +85,25 @@ public final class TimeZoneEngine {
      *
      * @param latitude  latitude part of query
      * @param longitude longitude part of query
+     * @return List of all zones at given geo coordinate. Normally it's just
+     * one zone, but for several places in the world there might be more.
+     */
+    public List<ZoneId> queryAll(double latitude, double longitude) {
+        return index.query(latitude, longitude);
+    }
+
+    /**
+     * Queries the {@link TimeZoneEngine} for a {@link java.time.ZoneId}
+     * based on geo coordinates.
+     *
+     * @param latitude  latitude part of query
+     * @param longitude longitude part of query
      * @return {@code Optional<ZoneId>#of(ZoneId)} if input corresponds
      * to some zone, or {@link Optional#empty()} otherwise.
      */
-    public List<ZoneId> query(double latitude, double longitude) {
-        return index.query(latitude, longitude);
+    public Optional<ZoneId> query(double latitude, double longitude) {
+        final List<ZoneId> result = index.query(latitude, longitude);
+        return result.size() > 0 ? Optional.of(result.get(0)) : Optional.empty();
     }
 
     /**

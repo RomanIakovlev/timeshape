@@ -13,8 +13,7 @@ val commonSettings = Seq(
   version := s"$dataVersion.$softwareVersion",
   crossPaths := false,
   autoScalaLibrary := false,
-  publishMavenStyle := true,
-  javacOptions ++= Seq("-Xdoclint:none")
+  publishMavenStyle := true
 )
 
 lazy val timeshape = (project in file("."))
@@ -88,7 +87,8 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
     version := "1.1.0-SNAPSHOT",
     PB.targets in Compile := Seq(
       PB.gens.java("3.10.0") -> (sourceManaged in Compile).value
-    )
+    ),
+    javacOptions ++= Seq("-Xdoclint:none")
   )
 
 
