@@ -2,7 +2,7 @@ import scala.sys.process._
 import _root_.io.circe.parser._
 
 val dataVersion = "2019b"
-val softwareVersion = "7"
+val softwareVersion = "8-SNAPSHOT"
 val `commons-compress` = Seq(
   "org.apache.commons" % "commons-compress" % "1.18",
   "com.github.luben" % "zstd-jni" % "1.3.7-1"
@@ -88,7 +88,12 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
     PB.targets in Compile := Seq(
       PB.gens.java("3.10.0") -> (sourceManaged in Compile).value
     ),
-    javacOptions ++= Seq("-Xdoclint:none")
+    javacOptions ++= Seq("-Xdoclint:none"),
+    releaseTask := {
+      publish.value
+      val buildState = state.value
+      if (!isSnapshot.value) Command.process("sonatypeRelease", buildState)
+    }
   )
 
 
