@@ -2,7 +2,7 @@ import scala.sys.process._
 import _root_.io.circe.parser._
 
 val dataVersion = "2019b"
-val softwareVersion = "7-SNAPSHOT"
+val softwareVersion = "7"
 val `commons-compress` = Seq(
   "org.apache.commons" % "commons-compress" % "1.18",
   "com.github.luben" % "zstd-jni" % "1.3.7-1"
@@ -13,8 +13,7 @@ val commonSettings = Seq(
   version := s"$dataVersion.$softwareVersion",
   crossPaths := false,
   autoScalaLibrary := false,
-  publishMavenStyle := true,
-  javacOptions ++= Seq("-Xdoclint:none")
+  publishMavenStyle := true
 )
 
 lazy val timeshape = (project in file("."))
@@ -85,10 +84,11 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
   .settings(commonSettings)
   .settings(
     publishTo := sonatypePublishTo.value,
-    version := "1.1.0-SNAPSHOT",
+    version := "1.1.0",
     PB.targets in Compile := Seq(
       PB.gens.java("3.10.0") -> (sourceManaged in Compile).value
-    )
+    ),
+    javacOptions ++= Seq("-Xdoclint:none")
   )
 
 

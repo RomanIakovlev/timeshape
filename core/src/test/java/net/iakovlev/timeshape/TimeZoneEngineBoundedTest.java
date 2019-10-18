@@ -1,13 +1,12 @@
 package net.iakovlev.timeshape;
 
-import net.iakovlev.timeshape.TimeZoneEngine;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -17,7 +16,7 @@ public class TimeZoneEngineBoundedTest {
 
     @Test
     public void testSomeZones() {
-        assertEquals(engine.query(52.52, 13.40), Collections.singletonList(ZoneId.of("Europe/Berlin")));
+        assertEquals(Optional.of(ZoneId.of("Europe/Berlin")), engine.query(52.52, 13.40));
     }
 
     @Test
