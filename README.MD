@@ -85,7 +85,7 @@ PolylineQueryBenchmark.testQueryPolyline  thrpt    5  4,073 ▒ 0,017  ops/s
 ```
 
 ### Architecture
-See [dedicated document](docs/Architecture.md) for description of Timeshape internals.
+See [dedicated document](doc/Architecture.md) for description of Timeshape internals.
 
 ### Versioning
 Version of Timeshape consist of data version and software version, divided by a '.' symbol. 
