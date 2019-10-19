@@ -84,7 +84,7 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
   .settings(commonSettings)
   .settings(
     publishTo := sonatypePublishTo.value,
-    version := "1.1.0",
+    version := "1.1.1-SNAPSHOT",
     PB.targets in Compile := Seq(
       PB.gens.java("3.10.0") -> (sourceManaged in Compile).value
     ),
