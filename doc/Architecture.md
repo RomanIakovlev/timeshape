@@ -76,6 +76,29 @@ changes of time zones happen regularly in real world, and only the latest JDK bu
 
 Version must be set to `snapshot` for local publication to work best.
 
+### local testing
+If you want to use a modified version of timeshape in your program or perform some local testing include the local
+repository in your build definition.
+
+With sbt/scala:
+
+```scala
+resolvers += Resolver.mavenLocal
+```
+
+With gradle/java:
+
+```groovy
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile group: 'net.iakovlev', name: 'timeshape', version: '2019b.7-SNAPSHOT'
+}
+```
+
 ## Memory usage
 The `testApp` project provides memory usage estimate by using [JOL](http://openjdk.java.net/projects/code-tools/jol/).
 The current version's estimated footprint is roughly 128 MB of memory when the data for the whole world is loaded.
