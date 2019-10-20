@@ -68,7 +68,13 @@ changes of time zones happen regularly in real world, and only the latest JDK bu
     * run `core/test` to execute the tests, they should pass.
     * run `testApp/run` to run the test app. It will query the data for one time zone and print the memory usage.
     * run `core/publishLocal` if you've made local modifications and want to use the modified version in your program.
-    Version must be set to snapshot for this to work best.
+    It will publish to the “local” [Ivy repository](https://www.scala-sbt.org/1.x/docs/Publishing.html#Publishing+locally).
+    By default, this is at `$HOME/.ivy2/local/`.
+    * run `core/publishM2` Similar to publishLocal, publishM2 task will publish the user’s Maven local repository.
+    This is at the location specified by `$HOME/.m2/settings.xml` or at `$HOME/.m2/repository/` by default.
+    Another sbt build would require `Resolver.mavenLocal` to resolve out of it.
+
+Version must be set to `snapshot` for local publication to work best.
 
 ## Memory usage
 The `testApp` project provides memory usage estimate by using [JOL](http://openjdk.java.net/projects/code-tools/jol/).
