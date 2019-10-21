@@ -25,6 +25,12 @@ Timeshape is published on Maven Central. The coordinates are the following:
 </dependency>
 ``` 
 
+## Adopters
+
+Are you using Timeshape? Please consider opening a pull request to list your organization here:
+
+ * Name and website of your organization
+
 ## Using the library
 
 The user API of library is in `net.iakovlev.timeshape.TimeZoneEngine` class. To use it, follow these steps:
