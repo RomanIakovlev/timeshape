@@ -109,6 +109,7 @@ public final class TimeZoneEngine {
     /**
      * Queries the {@link TimeZoneEngine} for a {@link java.time.ZoneId}
      * based on sequence of geo coordinates
+     *
      * @param points array of doubles representing the sequence of geo coordinates
      *               Must have the following shape: <code>{lat_1, lon_1, lat_2, lon_2, ..., lat_N, lon_N}</code>
      * @return Sequence of {@link SameZoneSpan}, where {@link SameZoneSpan#getEndIndex()} represents the last index
@@ -140,6 +141,7 @@ public final class TimeZoneEngine {
     public static TimeZoneEngine initialize(boolean accelerateGeometry) {
         return initialize(MIN_LAT, MIN_LON, MAX_LAT, MAX_LON, accelerateGeometry);
     }
+
     /**
      * Creates a new instance of {@link TimeZoneEngine} and initializes it.
      * This is a blocking long running operation.
@@ -153,37 +155,84 @@ public final class TimeZoneEngine {
     /**
      * Creates a new instance of {@link TimeZoneEngine} and initializes it.
      * This is a blocking long running operation.
+     * <p>
+     * Example invocation:
+     * <p>
+     * {{{
+     * try (InputStream resourceAsStream = new FileInputStream("./core/target/resource_managed/main/data.tar.zstd");
+     * TarArchiveInputStream f = new TarArchiveInputStream(new ZstdCompressorInputStream(resourceAsStream))) {
+     * return TimeZoneEngine.initialize(f);
+     * } catch (NullPointerException | IOException e) {
+     * throw new RuntimeException(e);
+     * }
+     * }}}
+     *
+     * @return an initialized instance of {@link TimeZoneEngine}
+     */
+    public static TimeZoneEngine initialize(TarArchiveInputStream f) {
+        return initialize(MIN_LAT, MIN_LON, MAX_LAT, MAX_LON, false, f);
+    }
+
+    /**
+     * Creates a new instance of {@link TimeZoneEngine} and initializes it from a given TarArchiveInputStream.
+     * This is a blocking long running operation. The InputStream resource must be managed by the caller.
+     * <p>
+     * Example invocation:
+     * {{{
+     * try (InputStream resourceAsStream = new FileInputStream("./core/target/resource_managed/main/data.tar.zstd");
+     * TarArchiveInputStream f = new TarArchiveInputStream(new ZstdCompressorInputStream(resourceAsStream))) {
+     * return TimeZoneEngine.initialize(47.0599, 4.8237, 55.3300, 15.2486, true, f);
+     * } catch (NullPointerException | IOException e) {
+     * throw new RuntimeException(e);
+     * }
+     * }}}
+     *
+     * @return an initialized instance of {@link TimeZoneEngine}
+     */
+    public static TimeZoneEngine initialize(double minLat,
+                                            double minLon,
+                                            double maxLat,
+                                            double maxLon,
+                                            boolean accelerateGeometry,
+                                            TarArchiveInputStream f) {
+        log.info("Initializing with bounding box: {}, {}, {}, {}", minLat, minLon, maxLat, maxLon);
+        validateCoordinates(minLat, minLon, maxLat, maxLon);
+        Spliterator<TarArchiveEntry> tarArchiveEntrySpliterator = makeSpliterator(f);
+        Stream<Geojson.Feature> featureStream = StreamSupport.stream(tarArchiveEntrySpliterator, false).map(n -> {
+            try {
+                if (n != null) {
+                    log.debug("Processing archive entry {}", n.getName());
+                    byte[] e = new byte[(int) n.getSize()];
+                    f.read(e);
+                    return Geojson.Feature.parseFrom(e);
+                } else {
+                    throw new RuntimeException("Data entry is not found in file");
+                }
+            } catch (NullPointerException | IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        int numberOfTimezones = 449; // can't get number of entries from tar, need to set manually
+        Envelope boundaries = new Envelope(minLon, minLat, maxLon, maxLat);
+        return new TimeZoneEngine(
+                Index.build(
+                        featureStream,
+                        numberOfTimezones,
+                        boundaries,
+                        accelerateGeometry));
+    }
+
+
+    /**
+     * Creates a new instance of {@link TimeZoneEngine} and initializes it.
+     * This is a blocking long running operation.
      *
      * @return an initialized instance of {@link TimeZoneEngine}
      */
     public static TimeZoneEngine initialize(double minLat, double minLon, double maxLat, double maxLon, boolean accelerateGeometry) {
-        log.info("Initializing with bounding box: {}, {}, {}, {}", minLat, minLon, maxLat, maxLon);
-        validateCoordinates(minLat, minLon, maxLat, maxLon);
         try (InputStream resourceAsStream = TimeZoneEngine.class.getResourceAsStream("/data.tar.zstd");
              TarArchiveInputStream f = new TarArchiveInputStream(new ZstdCompressorInputStream(resourceAsStream))) {
-            Spliterator<TarArchiveEntry> tarArchiveEntrySpliterator = makeSpliterator(f);
-            Stream<Geojson.Feature> featureStream = StreamSupport.stream(tarArchiveEntrySpliterator, false).map(n -> {
-                try {
-                    if (n != null) {
-                        log.debug("Processing archive entry {}", n.getName());
-                        byte[] e = new byte[(int) n.getSize()];
-                        f.read(e);
-                        return Geojson.Feature.parseFrom(e);
-                    } else {
-                        throw new RuntimeException("Data entry is not found in file");
-                    }
-                } catch (NullPointerException | IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-            });
-            int numberOfTimezones = 449; // can't get number of entries from tar, need to set manually
-            Envelope boundaries = new Envelope(minLon, minLat, maxLon, maxLat);
-            return new TimeZoneEngine(
-                    Index.build(
-                            featureStream,
-                            numberOfTimezones,
-                            boundaries,
-                            accelerateGeometry));
+            return initialize(minLat, minLon, maxLat, maxLon, accelerateGeometry, f);
         } catch (NullPointerException | IOException e) {
             log.error("Unable to read resource file", e);
             throw new RuntimeException(e);
