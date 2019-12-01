@@ -51,9 +51,10 @@ it must be covered by the bounding box completely, not just intersect with it.
 During initialization, the data is read from resource and the index is built. 
 Initialization takes a significant amount of time (approximately 1 second), so do it only once in program lifetime.
 
-Data can also be read from an external file, there are various overload of TimeZoneEngine.initialize that accept 
-a TarArchiveInputStream such methods will initialize the engine reading from an external file, remember to release/close
-the InputStream after the engine has been initialized.
+Data can also be read from an external file, see overloads of `TimeZoneEngine.initialize` that accept
+`TarArchiveInputStream`. The file format should be same as produced by running `builder` sbt project
+(see [here](doc/Architecture.md#builder)).
+It is responsibility of caller to close input stream passed to `TimeZoneEngine.initialize`.
 
 #### Query for `java.time.ZoneId`:
 Once initialization is completed, you can query the `ZoneId` based on latitude and longitude:
