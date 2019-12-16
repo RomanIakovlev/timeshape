@@ -1,13 +1,14 @@
 package net.iakovlev.timeshape;
 
 import com.esri.core.geometry.Envelope;
+import com.github.luben.zstd.ZstdInputStream;
 import net.iakovlev.timeshape.proto.Geojson;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.ZoneId;
@@ -230,9 +231,14 @@ public final class TimeZoneEngine {
      * @return an initialized instance of {@link TimeZoneEngine}
      */
     public static TimeZoneEngine initialize(double minLat, double minLon, double maxLat, double maxLon, boolean accelerateGeometry) {
-        try (InputStream resourceAsStream = TimeZoneEngine.class.getResourceAsStream("/data.tar.zstd");
-             TarArchiveInputStream f = new TarArchiveInputStream(new ZstdCompressorInputStream(resourceAsStream))) {
-            return initialize(minLat, minLon, maxLat, maxLon, accelerateGeometry, f);
+        try (InputStream resourceAsStream = TimeZoneEngine.class.getResourceAsStream("/data.tar.zstd")) {
+            try (ZstdInputStream unzipStream = new ZstdInputStream(resourceAsStream)) {
+                try (BufferedInputStream bufferedStream = new BufferedInputStream(unzipStream)) {
+                    try (TarArchiveInputStream shapeInputStream = new TarArchiveInputStream(bufferedStream)) {
+                        return initialize(minLat, minLon, maxLat, maxLon, accelerateGeometry, shapeInputStream);
+                    }
+                }
+            }
         } catch (NullPointerException | IOException e) {
             log.error("Unable to read resource file", e);
             throw new RuntimeException(e);
