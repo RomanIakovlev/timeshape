@@ -2,7 +2,7 @@ import scala.sys.process._
 import _root_.io.circe.parser._
 
 val dataVersion = "2019b"
-val softwareVersion = "8-SNAPSHOT"
+val softwareVersion = "8"
 val `commons-compress` = Seq(
   "org.apache.commons" % "commons-compress" % "1.18",
   "com.github.luben" % "zstd-jni" % "1.3.7-1"
@@ -43,7 +43,8 @@ lazy val core = (project in file("core"))
       "com.novocode" % "junit-interface" % "0.11" % Test
         exclude ("junit", "junit-dep"),
       "org.slf4j" % "slf4j-api" % "1.7.25",
-      "com.fasterxml.jackson.core" % "jackson-core" % "2.9.6"
+      "com.fasterxml.jackson.core" % "jackson-core" % "2.9.6",
+      "net.iakovlev" % "geojson-proto" % "1.1.0"
     ) ++ `commons-compress`,
     name := "timeshape",
     publishTo := sonatypePublishTo.value,
