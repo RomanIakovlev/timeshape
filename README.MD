@@ -9,6 +9,8 @@ It's based on data published at
 [https://github.com/evansiroky/timezone-boundary-builder/releases](https://github.com/evansiroky/timezone-boundary-builder/releases),
 which itself is inherited from the OpenStreetMap data.
 
+But what if knowing just time zone for a geo coordinate is not enough? Wouldn't it be nice to know more, like
+administrative area or city neighborhood? Check out [GeoBundle](https://geobundle.com), now there's a Java library for that, too! 
 ## Quote
 > “Time is an illusion.”
 >
