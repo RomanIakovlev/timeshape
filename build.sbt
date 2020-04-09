@@ -2,10 +2,10 @@ import scala.sys.process._
 import _root_.io.circe.parser._
 
 val dataVersion = "2019b"
-val softwareVersion = "9-SNAPSHOT"
+val softwareVersion = "9"
 val `commons-compress` = Seq(
-  "org.apache.commons" % "commons-compress" % "1.18",
-  "com.github.luben" % "zstd-jni" % "1.3.7-1"
+  "org.apache.commons" % "commons-compress" % "1.20",
+  "com.github.luben" % "zstd-jni" % "1.4.4-9"
 )
 val commonSettings = Seq(
   organization := "net.iakovlev",
@@ -38,12 +38,12 @@ lazy val core = (project in file("core"))
   .settings(
     builderArgument := dataVersion,
     libraryDependencies ++= Seq(
-      "com.esri.geometry" % "esri-geometry-api" % "2.2.1",
+      "com.esri.geometry" % "esri-geometry-api" % "2.2.3",
       "junit" % "junit" % "4.12" % Test,
       "com.novocode" % "junit-interface" % "0.11" % Test
         exclude ("junit", "junit-dep"),
-      "org.slf4j" % "slf4j-api" % "1.7.25",
-      "com.fasterxml.jackson.core" % "jackson-core" % "2.9.6",
+      "org.slf4j" % "slf4j-api" % "1.7.30",
+      "com.fasterxml.jackson.core" % "jackson-core" % "2.10.3",
       "net.iakovlev" % "geojson-proto" % "1.1.0"
     ) ++ `commons-compress`,
     name := "timeshape",
@@ -79,7 +79,6 @@ lazy val core = (project in file("core"))
       if (!isSnapshot.value) Command.process("sonatypeRelease", buildState)
     }
   )
-  .dependsOn(`geojson-proto`)
 
 lazy val `geojson-proto` = (project in file("geojson-proto"))
   .settings(commonSettings)
