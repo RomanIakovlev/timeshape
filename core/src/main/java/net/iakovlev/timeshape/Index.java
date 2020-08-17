@@ -115,6 +115,10 @@ final class Index {
             }
         }
 
+        if (lastWasEmpty) {
+            sameZoneSegments.add(SameZoneSpan.fromIndexEntries(Collections.emptyList(), index * 2 - 1));
+        }
+
         return sameZoneSegments;
     }
 

@@ -52,4 +52,14 @@ public class TimeZoneEnginePolylineTest {
                         new SameZoneSpan(new HashSet<>(Collections.singletonList(ZoneId.of("Etc/GMT-1"))), 11),
                         new SameZoneSpan(new HashSet<>(Collections.singletonList(ZoneId.of("Europe/Stockholm"))), 13)));
     }
+
+    @Test
+    public void testNonMatchingLastPoints() {
+        assertEquals(engine.queryPolyline(new double[]{54.89, 23.91, 55.13, 25.57, 54.29, 28.32, 80, 180, 80, 180}),
+                Arrays.asList(
+                        new SameZoneSpan(new HashSet<>(Collections.singletonList(ZoneId.of("Europe/Vilnius"))), 3),
+                        new SameZoneSpan(new HashSet<>(Collections.singletonList(ZoneId.of("Europe/Minsk"))), 5),
+                        new SameZoneSpan(new HashSet<>(), 9)
+                ));
+    }
 }
