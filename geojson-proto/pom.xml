@@ -16,8 +16,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.deploy.skip>false</maven.deploy.skip>
-    <maven.install.skip>false</maven.install.skip>
   </properties>
 
   <dependencies>

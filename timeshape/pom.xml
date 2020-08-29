@@ -17,8 +17,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <dataFilename>data.tar.zstd</dataFilename>
     <dataVersion>2020a</dataVersion>
-    <maven.deploy.skip>false</maven.deploy.skip>
-    <maven.install.skip>false</maven.install.skip>
   </properties>
 
   <dependencies>
