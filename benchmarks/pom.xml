@@ -9,7 +9,7 @@
     <version>1.0</version>
   </parent>
 
-  <artifactId>benchmarks</artifactId>
+  <artifactId>timeshape-benchmarks</artifactId>
   <version>1.0</version>
   <packaging>jar</packaging>
 

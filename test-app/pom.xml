@@ -7,7 +7,7 @@
     <version>1.0</version>
   </parent>
 
-  <artifactId>test-app</artifactId>
+  <artifactId>timeshape-test-app</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <name>test-app</name>
