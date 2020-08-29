@@ -26,7 +26,8 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
 	EOF
 
     # Build and publish
-    sbt test releaseTask
+    # sbt test releaseTask
+    mvn -B -e --settings sonatype-settings.xml clean deploy
 else
-    sbt test
+    mvn -B -e clean verify
 fi
