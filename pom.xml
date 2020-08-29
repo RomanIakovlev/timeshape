@@ -118,8 +118,8 @@
         <activeByDefault>false</activeByDefault>
       </activation>
       <properties>
-        <gpg.keyname>3539CFCF516BFE9FFBDACC27D27D172119117629</gpg.keyname>
-<!--        <gpg.keyname>2DEEABE0DB8F8A2683DA4A4EB5C6B41853481DEE</gpg.keyname>-->
+<!--        <gpg.keyname>3539CFCF516BFE9FFBDACC27D27D172119117629</gpg.keyname>-->
+        <gpg.keyname>2DEEABE0DB8F8A2683DA4A4EB5C6B41853481DEE</gpg.keyname>
       </properties>
       <build>
         <plugins>
