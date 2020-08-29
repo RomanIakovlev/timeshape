@@ -9,14 +9,13 @@
   </parent>
 
   <artifactId>timeshape</artifactId>
-  <version>2020a.11-SNAPSHOT</version>
+  <version>2020a.11</version>
 
   <name>timeshape</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <dataFilename>data.tar.zstd</dataFilename>
-    <dataVersion>2020a</dataVersion>
   </properties>
 
   <dependencies>
