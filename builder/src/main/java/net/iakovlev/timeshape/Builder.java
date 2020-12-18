@@ -1,4 +1,4 @@
-package net.iakovlev.timeshape.builder;
+package net.iakovlev.timeshape;
 
 import net.iakovlev.timeshape.proto.Geojson;
 import org.geojson.*;

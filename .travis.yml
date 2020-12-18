@@ -1,4 +1,4 @@
-language: java
+language: scala
 
 jdk:
   - openjdk8
@@ -6,6 +6,16 @@ jdk:
 script: .travis/build.sh
 
 sudo: false
+
+cache:
+  directories:
+    - "$HOME/.ivy2/cache"
+    - "$HOME/.sbt/boot/"
+
+before_cache:
+  - find $HOME/.ivy2/cache/net.iakovlev -depth -name "*timeshape" -exec rm -r {} \;
+  - find $HOME/.ivy2 -name "ivydata-*.properties" -print -delete
+  - find $HOME/.sbt -name "*.lock" -print -delete
 
 branches:
   only:
