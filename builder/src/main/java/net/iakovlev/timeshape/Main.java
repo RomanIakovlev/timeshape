@@ -1,4 +1,4 @@
-package net.iakovlev.timeshape.builder;
+package net.iakovlev.timeshape;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.iakovlev.timeshape.proto.Geojson;
@@ -10,7 +10,6 @@ import org.geojson.FeatureCollection;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.zip.ZipInputStream;
 
@@ -40,19 +39,13 @@ public class Main {
      * @param argument
      * @param outputPath
      */
-    private static void writeTarZStdProto(String argument, String outputPath, String outputFile) {
-        final Path path = Paths.get(outputPath, outputFile);
-        if (Files.exists(path)) {
-            System.err.println("File already exists, exiting without doing anything");
-            return;
-        }
+    private static void writeTarZStdProto(String argument, String outputPath) {
         try (ZipInputStream zipInputStream = new ZipInputStream(createInputStream(argument))) {
             zipInputStream.getNextEntry();
             Geojson.FeatureCollection featureCollection = Builder.buildProto(new ObjectMapper().readValue(zipInputStream, FeatureCollection.class));
-            Files.createDirectories(Paths.get(outputPath));
             try (TarArchiveOutputStream out =
                          new TarArchiveOutputStream(
-                                 new ZstdCompressorOutputStream(Files.newOutputStream(path), 22))) {
+                                 new ZstdCompressorOutputStream(new FileOutputStream(outputPath), 22))) {
                 for (Geojson.Feature feature : featureCollection.getFeaturesList()) {
                     TarArchiveEntry entry = new TarArchiveEntry(feature.getProperties(0).getValueString());
                     byte[] bytes = feature.toByteArray();
@@ -70,7 +63,6 @@ public class Main {
     public static void main(String[] args) {
         String argument = args[0];
         String outputPath = args[1];
-        String outputFile = args[2];
-        writeTarZStdProto(argument, outputPath, outputFile);
+        writeTarZStdProto(argument, outputPath);
     }
 }

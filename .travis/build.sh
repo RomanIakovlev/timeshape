@@ -9,8 +9,24 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
 
     gpg --import travis.gpg
 
+    # Setup publishing
+    cat <<-EOF > sonatype.sbt
+	credentials in Global += Credentials(
+	    "GnuPG Key ID",
+	    "gpg",
+	    "2DEEABE0DB8F8A2683DA4A4EB5C6B41853481DEE",
+	    "ignored"
+	)
+	credentials in Global += Credentials(
+	    "Sonatype Nexus Repository Manager",
+	    "oss.sonatype.org",
+	    "roman.iakovlev",
+	    "$SONATYPE_PASSWORD"
+	)
+	EOF
+
     # Build and publish
-    mvn -B -e --settings sonatype-settings.xml deploy
+    sbt test releaseTask
 else
-    mvn -B -e verify
+    sbt test
 fi
