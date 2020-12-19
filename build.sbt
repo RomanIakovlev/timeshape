@@ -2,10 +2,10 @@ import scala.sys.process._
 import _root_.io.circe.parser._
 
 val dataVersion = "2020d"
-val softwareVersion = "11"
+val softwareVersion = "12-SNAPSHOT"
 val `commons-compress` = Seq(
   "org.apache.commons" % "commons-compress" % "1.20",
-  "com.github.luben" % "zstd-jni" % "1.4.4-9"
+  "com.github.luben" % "zstd-jni" % "1.4.8-1"
 )
 val commonSettings = Seq(
   organization := "net.iakovlev",
@@ -38,12 +38,12 @@ lazy val core = (project in file("core"))
   .settings(
     builderArgument := dataVersion,
     libraryDependencies ++= Seq(
-      "com.esri.geometry" % "esri-geometry-api" % "2.2.3",
-      "junit" % "junit" % "4.12" % Test,
+      "com.esri.geometry" % "esri-geometry-api" % "2.2.4",
+      "junit" % "junit" % "4.13.1" % Test,
       "com.novocode" % "junit-interface" % "0.11" % Test
         exclude ("junit", "junit-dep"),
       "org.slf4j" % "slf4j-api" % "1.7.30",
-      "com.fasterxml.jackson.core" % "jackson-core" % "2.10.3",
+      "com.fasterxml.jackson.core" % "jackson-core" % "2.12.0",
       "net.iakovlev" % "geojson-proto" % "1.1.0"
     ) ++ `commons-compress`,
     name := "timeshape",
@@ -101,10 +101,16 @@ lazy val builder = (project in file("builder"))
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "de.grundid.opendatalab" % "geojson-jackson" % "1.8.1"
+      "com.fasterxml.jackson.core" % "jackson-core" % "2.12.0",
+      "de.grundid.opendatalab" % "geojson-jackson" % "1.14"
     ) ++ `commons-compress`,
     name := "timeshape-builder",
-    skip in publish := true
+    skip in publish := true,
+    assemblyMergeStrategy in assembly := {
+      case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+      case x if x.endsWith("/module-info.class") => MergeStrategy.discard
+      case x => MergeStrategy.first
+    }
   )
   .dependsOn(`geojson-proto`)
 
