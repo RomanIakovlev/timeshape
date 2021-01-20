@@ -26,7 +26,7 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
 	EOF
 
     # Build and publish
-    sbt test releaseTask
+    SOURCE_DATE_EPOCH=$(date +%s) sbt test releaseTask
 else
     sbt test
 fi
