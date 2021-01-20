@@ -1,7 +1,9 @@
 language: scala
 
+dist: trusty
+
 jdk:
-  - openjdk8
+  - oraclejdk8
 
 script: .travis/build.sh
 

@@ -49,6 +49,7 @@ lazy val core = (project in file("core"))
     name := "timeshape",
     publishTo := sonatypePublishTo.value,
     packageOptions in (Compile, packageBin) += Package.ManifestAttributes("Automatic-Module-Name" -> "net.iakovlev.timeshape"),
+    javacOptions ++= Seq("-Xdoclint:none"),
     resourceGenerators in Compile += Def.taskDyn {
       val log = streams.value.log
       val outputPath = (resourceManaged in Compile).value

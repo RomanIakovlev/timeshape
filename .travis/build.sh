@@ -3,8 +3,6 @@ set -o errexit
 set -o nounset
 set -o verbose
 
-date -R
-
 if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     openssl aes-256-cbc -K $encrypted_aae76eb822dd_key -iv $encrypted_aae76eb822dd_iv \
         -in travis.gpg.enc -out travis.gpg -d

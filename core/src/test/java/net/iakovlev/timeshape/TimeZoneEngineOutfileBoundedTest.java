@@ -38,6 +38,6 @@ public class TimeZoneEngineOutfileBoundedTest {
     @Test
     public void testWorld() {
         List<ZoneId> knownZoneIds = engine.getKnownZoneIds();
-        assertEquals(1402, knownZoneIds.size());
+        assertEquals(1401, knownZoneIds.size());
     }
 }
