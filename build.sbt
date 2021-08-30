@@ -4,8 +4,8 @@ import _root_.io.circe.parser._
 val dataVersion = "2020d"
 val softwareVersion = "12-SNAPSHOT"
 val `commons-compress` = Seq(
-  "org.apache.commons" % "commons-compress" % "1.20",
-  "com.github.luben" % "zstd-jni" % "1.4.8-1"
+  "org.apache.commons" % "commons-compress" % "1.21",
+  "com.github.luben" % "zstd-jni" % "1.5.0-4"
 )
 val commonSettings = Seq(
   organization := "net.iakovlev",
