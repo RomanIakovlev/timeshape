@@ -35,9 +35,4 @@ public class TimeZoneEngineOutfileBoundedTest {
         assertEquals(Optional.of(ZoneId.of("Europe/Berlin")), engine.query(52.52, 13.40));
     }
 
-    @Test
-    public void testWorld() {
-        List<ZoneId> knownZoneIds = engine.getKnownZoneIds();
-        assertEquals(1402, knownZoneIds.size());
-    }
 }
