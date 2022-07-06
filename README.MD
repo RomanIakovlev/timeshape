@@ -28,6 +28,17 @@ Timeshape is published on Maven Central. The coordinates are the following:
 </dependency>
 ``` 
 
+## Android
+Android developers should add Timeshape to the app level gradle.build as follows:
+```
+implementation('net.iakovlev:timeshape:2020d.12') {
+  // Exclude standard compression library
+  exclude group: 'com.github.luben', module: 'zstd-jni'
+}
+// Import aar for native component compilation
+implementation 'com.github.luben:zstd-jni:1.5.2-3@aar'
+```
+
 ## Adopters
 
 Are you using Timeshape? Please consider opening a pull request to list your organization here:
