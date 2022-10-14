@@ -28,5 +28,5 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     # Build and publish
     SOURCE_DATE_EPOCH=$(date +%s) sbt test releaseTask
 else
-    sbt test
+    echo "Nothing to do, pull requests are now handled via GitHub Actions!"
 fi
