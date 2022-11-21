@@ -2,7 +2,7 @@ import scala.sys.process._
 import _root_.io.circe.parser._
 
 val dataVersion = "2021c"
-val softwareVersion = "14"
+val softwareVersion = "15-SNAPSHOT"
 val `commons-compress` = Seq(
   "org.apache.commons" % "commons-compress" % "1.21",
   "com.github.luben" % "zstd-jni" % "1.5.2-3"
@@ -84,7 +84,7 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
   .settings(commonSettings)
   .settings(
     publishTo := sonatypePublishTo.value,
-    version := "1.1.1-SNAPSHOT",
+    version := "1.1.1",
     PB.targets in Compile := Seq(
       PB.gens.java("3.21.9") -> (sourceManaged in Compile).value
     ),
