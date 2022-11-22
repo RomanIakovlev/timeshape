@@ -1,7 +1,7 @@
 import scala.sys.process._
 import _root_.io.circe.parser._
 
-val dataVersion = "2021c"
+val dataVersion = "2022f"
 val softwareVersion = "15"
 val `commons-compress` = Seq(
   "org.apache.commons" % "commons-compress" % "1.21",
