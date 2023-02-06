@@ -1,0 +1,51 @@
+name: Release
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: 'sbt'
+
+      - name: Save Sonatype key to a file
+        run: echo ${{ secrets.SONATYPE_KEY }} > sonatype.key
+
+      - name: Import GPG key
+        run: gpg --import sonatype.key
+
+      - name: Remove Sonatype key file
+        run: rm sonatype.key
+        
+      - name: Setup publishing
+        run: | 
+        cat <<-EOF > sonatype.sbt
+	credentials in Global += Credentials(
+	    "GnuPG Key ID",
+	    "gpg",
+	    ${{ secrets.SONATYPE_KEY_ID }},
+	    "ignored"
+	)
+	credentials in Global += Credentials(
+	    "Sonatype Nexus Repository Manager",
+	    "oss.sonatype.org",
+	    ${{ secrets.SONATYPE_ORG_USER }},
+	    ${{ secrets.SONATYPE_ORG_PASSWORD }}
+	)
+	EOF
+
+      - name: Publish to Maven Central
+        run: SOURCE_DATE_EPOCH=$(date +%s) sbt test releaseTask
