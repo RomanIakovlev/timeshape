@@ -22,7 +22,7 @@ jobs:
           cache: 'sbt'
 
       - name: Save Sonatype key to a file
-        run: echo ${{ secrets.SONATYPE_KEY }} > sonatype.key
+        run: printf "${{ secrets.SONATYPE_KEY }}" > sonatype.key
 
       - name: Import GPG key
         run: gpg --import sonatype.key
