@@ -31,21 +31,20 @@ jobs:
         run: rm sonatype.key
         
       - name: Setup publishing
-        run: | 
-        cat <<-EOF > sonatype.sbt
-	credentials in Global += Credentials(
-	    "GnuPG Key ID",
-	    "gpg",
-	    ${{ secrets.SONATYPE_KEY_ID }},
-	    "ignored"
-	)
-	credentials in Global += Credentials(
-	    "Sonatype Nexus Repository Manager",
-	    "oss.sonatype.org",
-	    ${{ secrets.SONATYPE_ORG_USER }},
-	    ${{ secrets.SONATYPE_ORG_PASSWORD }}
-	)
-	EOF
-
+        run: |
+          cat <<-EOF > sonatype.sbt
+            credentials in Global += Credentials(
+            "GnuPG Key ID",
+            "gpg",
+            ${{ secrets.SONATYPE_KEY_ID }},
+            "ignored"
+          )
+          credentials in Global += Credentials(
+            "Sonatype Nexus Repository Manager",
+            "oss.sonatype.org",
+            ${{ secrets.SONATYPE_ORG_USER }},
+            ${{ secrets.SONATYPE_ORG_PASSWORD }}
+          )
+          EOF
       - name: Publish to Maven Central
         run: SOURCE_DATE_EPOCH=$(date +%s) sbt test releaseTask
