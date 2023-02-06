@@ -23,7 +23,7 @@ jobs:
 
       - name: Setup Sonatype key
         run: |
-          GNUPGHOME=$(mktemp -d $HOME/.gnupgXXXXXX)
+          GNUPGHOME=/tmp/gpg
           export GNUPGHOME
           gpg --decrypt --batch --yes --passphrase  "${{ secrets.SONATYPE_KEY_PASSWORD }}" sonatype.key.gpg | gpg --import
 
@@ -45,4 +45,4 @@ jobs:
           EOF
 
       - name: Publish to Maven Central
-        run: SOURCE_DATE_EPOCH=$(date +%s) sbt test releaseTask
+        run: GNUPGHOME=/tmp/gpg SOURCE_DATE_EPOCH=$(date +%s) sbt test releaseTask
