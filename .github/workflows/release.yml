@@ -22,7 +22,10 @@ jobs:
           cache: 'sbt'
 
       - name: Setup Sonatype key
-        run: gpg --homedir /tmp/gpg --decrypt --batch --yes --passphrase  "${{ secrets.SONATYPE_KEY_PASSWORD }}" sonatype.key.gpg | gpg --homedir /tmp/gpg --import
+        run: |
+          GNUPGHOME=$(mktemp -d $HOME/.gnupgXXXXXX)
+          export GNUPGHOME
+          gpg --decrypt --batch --yes --passphrase  "${{ secrets.SONATYPE_KEY_PASSWORD }}" sonatype.key.gpg | gpg --import
 
       - name: Setup publishing
         run: |
