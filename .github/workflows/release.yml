@@ -23,6 +23,7 @@ jobs:
 
       - name: Setup Sonatype key
         run: |
+          mkdir -p /tmp/gpg
           GNUPGHOME=/tmp/gpg
           export GNUPGHOME
           gpg --decrypt --batch --yes --passphrase  "${{ secrets.SONATYPE_KEY_PASSWORD }}" sonatype.key.gpg | gpg --import
