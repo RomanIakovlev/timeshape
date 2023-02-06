@@ -1,7 +1,7 @@
 # Timeshape
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.iakovlev/timeshape/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.iakovlev/timeshape/)
-![Build status](https://travis-ci.com/RomanIakovlev/timeshape.svg?branch=master)
+![Build status](https://github.com/RomanIakovlev/timeshape/actions/workflows/release.yml/badge.svg)
 [![Gitter](https://badges.gitter.im/timeshape/community.svg)](https://gitter.im/timeshape/community)
 
 Timeshape is a Java library that can be used to determine to which time zone a given geo coordinate belongs.
