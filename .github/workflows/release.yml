@@ -21,15 +21,9 @@ jobs:
           distribution: 'temurin'
           cache: 'sbt'
 
-      - name: Save Sonatype key to a file
-        run: printf "${{ secrets.SONATYPE_KEY }}" > sonatype.key
+      - name: Setup Sonatype key
+        run: gpg --decrypt --batch --yes --passphrase  "${{ secrets.SONATYPE_KEY_PASSWORD }}" sonatype.key.gpg | gpg --import
 
-      - name: Import GPG key
-        run: gpg --import sonatype.key
-
-      - name: Remove Sonatype key file
-        run: rm sonatype.key
-        
       - name: Setup publishing
         run: |
           cat <<-EOF > sonatype.sbt
@@ -46,5 +40,6 @@ jobs:
             ${{ secrets.SONATYPE_ORG_PASSWORD }}
           )
           EOF
+
       - name: Publish to Maven Central
         run: SOURCE_DATE_EPOCH=$(date +%s) sbt test releaseTask
