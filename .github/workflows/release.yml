@@ -22,7 +22,7 @@ jobs:
           cache: 'sbt'
 
       - name: Setup Sonatype key
-        run: gpg --no-options --decrypt --batch --yes --passphrase  "${{ secrets.SONATYPE_KEY_PASSWORD }}" sonatype.key.gpg | gpg --no-options --import
+        run: gpg --homedir /tmp/gpg --decrypt --batch --yes --passphrase  "${{ secrets.SONATYPE_KEY_PASSWORD }}" sonatype.key.gpg | gpg --homedir /tmp/gpg --import
 
       - name: Setup publishing
         run: |
