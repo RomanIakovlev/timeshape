@@ -1,0 +1,22 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/java
+{
+	"name": "sbt on Java 11",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/java:0-11",
+	
+	"hostRequirements": {
+		"memory": "8gb"
+	  },
+
+	"features": {
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "11",
+			"imageVariant": "11",
+			"installMaven": "false",
+			"installGradle": "false"
+		},
+		"ghcr.io/devcontainers-contrib/features/sbt-sdkman:2": {},
+		"ghcr.io/devcontainers-contrib/features/scala-sdkman:2": {}
+	}
+}
