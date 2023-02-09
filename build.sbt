@@ -2,10 +2,10 @@ import scala.sys.process._
 import _root_.io.circe.parser._
 
 val dataVersion = "2022g"
-val softwareVersion = "16"
+val softwareVersion = "17-SNAPSHOT"
 val `commons-compress` = Seq(
-  "org.apache.commons" % "commons-compress" % "1.21",
-  "com.github.luben" % "zstd-jni" % "1.5.2-3"
+  "org.apache.commons" % "commons-compress" % "1.22",
+  "com.github.luben" % "zstd-jni" % "1.5.2-5"
 )
 val commonSettings = Seq(
   organization := "net.iakovlev",
@@ -52,7 +52,7 @@ lazy val core = (project in file("core"))
         log.info("Timeshape resource doesn't exist in this host, creating it now.")
         log.info("Downloading timezone data with version: " + builderArgument.value)
         val command =
-          s"java -jar ${(builder / assembly).value} ${builderArgument.value} ${outputFile.getAbsolutePath}"
+          s"${(builder / stage).value}/bin/${(builder / name).value} ${builderArgument.value} ${outputFile.getAbsolutePath}"
         log.info(s"running $command")
         command.!
       } else {
@@ -72,8 +72,8 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
   .settings(
     publishTo := sonatypePublishTo.value,
     version := "1.1.2-SNAPSHOT",
-    PB.targets in Compile := Seq(
-      PB.gens.java("3.21.9") -> (sourceManaged in Compile).value
+    Compile / PB.targets := Seq(
+      PB.gens.java("3.21.12") -> (Compile / sourceManaged).value
     ),
     javacOptions ++= Seq("-Xdoclint:none"),
     releaseTask := {
@@ -88,23 +88,18 @@ lazy val builder = (project in file("builder"))
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "com.fasterxml.jackson.core" % "jackson-core" % "2.12.0",
+      "com.fasterxml.jackson.core" % "jackson-core" % "2.14.2",
       "de.grundid.opendatalab" % "geojson-jackson" % "1.14"
     ) ++ `commons-compress`,
     name := "timeshape-builder",
-    skip in publish := true,
-    assemblyMergeStrategy in assembly := {
-      case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-      case x if x.endsWith("/module-info.class") => MergeStrategy.discard
-      case x => MergeStrategy.first
-    }
+    skip in publish := true
   )
   .dependsOn(`geojson-proto`)
+  .enablePlugins(JavaAppPackaging)
 
 lazy val testApp = (project in file("test-app"))
   .settings(commonSettings)
   .settings(
-    mainClass in assembly := Some("net.iakovlev.timeshape.testapp.Main"),
     skip in publish := true,
     libraryDependencies ++= Seq("org.openjdk.jol" % "jol-core" % "0.9",
                                 "ch.qos.logback" % "logback-classic" % "1.2.3")

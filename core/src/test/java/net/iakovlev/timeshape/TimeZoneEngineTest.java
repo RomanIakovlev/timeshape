@@ -30,6 +30,7 @@ public class TimeZoneEngineTest {
         assertEquals(Optional.of(ZoneId.of("Etc/GMT+1")), engine.query(38.00, -15.2814));
         assertEquals(Optional.of(ZoneId.of("Asia/Shanghai")), engine.query(39.601, 79.201));
         assertEquals(Optional.of(ZoneId.of("Asia/Shanghai")), engine.query(27.45, 89.05));
+        assertEquals(List.of(ZoneId.of("America/Ciudad_Juarez")), engine.queryAll(31.752, -106.457));
     }
 
     @Test
