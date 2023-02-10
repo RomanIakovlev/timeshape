@@ -17,7 +17,7 @@ E.g. 2022g.16
 ## Which Java version are you using?
 E.g. 8.0.361, 11.0.8 or 17.0.6.
 
-## If you upgrade to the latest Java version, does it still fail?
+## If you upgrade to the latest Java minor version, does it still fail?
   * Yes 
     - To which Java version have you upgraded?
   * :tada: Not anymore!
