@@ -20,8 +20,8 @@ E.g. 8.0.361, 11.0.8 or 17.0.6.
 ## If you upgrade to the latest Java version, does it still fail?
   * Yes 
     - Which version have you tried?
-  *  No
-    - Then there's no issue!
+  * No 
+    - Glad that it's fixed for you!
 
 ## Which coordinates are you using?
 Please use `lat, lon` format, e.g. 61.237, 13.801. You may specify multiple coordinate pairs.
