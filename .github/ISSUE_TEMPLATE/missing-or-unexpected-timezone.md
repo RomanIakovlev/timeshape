@@ -20,7 +20,7 @@ E.g. 8.0.361, 11.0.8 or 17.0.6.
 ## If you upgrade to the latest Java version, does it still fail?
   * Yes 
     - Which version have you tried?
-  *  No (
+  *  No
     - Then there's no issue!
 
 ## Which coordinates are you using?
