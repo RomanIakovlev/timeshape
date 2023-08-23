@@ -3,6 +3,9 @@ import _root_.io.circe.parser._
 
 val dataVersion = "2022g"
 val softwareVersion = "18-SNAPSHOT"
+
+scalacOptions += "-target:jvm-1.8"
+
 val `commons-compress` = Seq(
   "org.apache.commons" % "commons-compress" % "1.22",
   "com.github.luben" % "zstd-jni" % "1.5.2-5"
