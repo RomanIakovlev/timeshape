@@ -1,7 +1,7 @@
 import scala.sys.process._
 import _root_.io.circe.parser._
 
-val dataVersion = "2022g"
+val dataVersion = "2023b"
 val softwareVersion = "18-SNAPSHOT"
 
 scalacOptions += "-target:jvm-1.8"
