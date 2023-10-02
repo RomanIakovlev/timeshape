@@ -1,22 +1,24 @@
 import scala.sys.process._
 import _root_.io.circe.parser._
 
-val dataVersion = "2022g"
-val softwareVersion = "18-SNAPSHOT"
+val dataVersion = "2023b"
+val softwareVersion = "18"
+val snapshotRelease = false
 
-scalacOptions += "-target:jvm-1.8"
+val releaseType = if (snapshotRelease) "-SNAPSHOT" else ""
+
+val commonSettings = Seq(
+  organization := "net.iakovlev",
+  sonatypeProfileName := "net.iakovlev",
+  version := s"$dataVersion.$softwareVersion$releaseType",
+  crossPaths := false,
+  autoScalaLibrary := false,
+  publishMavenStyle := true
+)
 
 val `commons-compress` = Seq(
   "org.apache.commons" % "commons-compress" % "1.22",
   "com.github.luben" % "zstd-jni" % "1.5.2-5"
-)
-val commonSettings = Seq(
-  organization := "net.iakovlev",
-  sonatypeProfileName := "net.iakovlev",
-  version := s"$dataVersion.$softwareVersion",
-  crossPaths := false,
-  autoScalaLibrary := false,
-  publishMavenStyle := true
 )
 
 lazy val timeshape = (project in file("."))
