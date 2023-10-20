@@ -31,6 +31,7 @@ public class TimeZoneEngineTest {
         assertEquals(Optional.of(ZoneId.of("Asia/Shanghai")), engine.query(39.601, 79.201));
         assertEquals(Optional.of(ZoneId.of("Asia/Shanghai")), engine.query(27.45, 89.05));
         assertEquals(List.of(ZoneId.of("America/Ciudad_Juarez")), engine.queryAll(31.752, -106.457));
+        assertEquals(Optional.of(ZoneId.of("Europe/Bucharest")), engine.query(46.16799, 20.71524));
     }
 
     @Test
@@ -73,6 +74,11 @@ public class TimeZoneEngineTest {
         expected6.add(ZoneId.of("Asia/Shanghai"));
         expected6.add(ZoneId.of("Asia/Thimphu"));
         assertEquals(expected6, engine.queryAll(27.45, 89.05));
+
+        List<ZoneId> expected7 = new java.util.ArrayList<>();
+        expected7.add(ZoneId.of("Europe/Bucharest"));
+        expected7.add(ZoneId.of("Europe/Budapest"));
+        assertEquals(expected7, engine.queryAll(46.16799, 20.71524));
 
         List<ZoneId> expected = new java.util.ArrayList<>();
         expected.add(ZoneId.of("Asia/Shanghai"));

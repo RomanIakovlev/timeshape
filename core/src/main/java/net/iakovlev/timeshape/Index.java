@@ -44,11 +44,12 @@ final class Index {
     List<ZoneId> query(double latitude, double longitude) {
         ArrayList<ZoneId> result = new ArrayList<>(2);
         Point point = new Point(longitude, latitude);
+        var operator = OperatorIntersects.local();
         QuadTree.QuadTreeIterator iterator = quadTree.getIterator(point, 0);
         for (int i = iterator.next(); i >= 0; i = iterator.next()) {
             int element = quadTree.getElement(i);
             Entry entry = zoneIds.get(element);
-            if (GeometryEngine.contains(entry.geometry, point, spatialReference)) {
+            if(operator.execute(entry.geometry, point, spatialReference, null)) {
                 result.add(entry.zoneId);
             }
         }
@@ -85,12 +86,13 @@ final class Index {
         // 4. goto 1.
         int index = 0;
         boolean lastWasEmpty = false;
+        var operator = OperatorIntersects.local();
         while (index < points.size()) {
             Point p = points.get(index);
             if (currentEntry == null) {
                 currentEntry = potentiallyMatchingEntries
                         .stream()
-                        .filter(e -> GeometryEngine.contains(e.geometry, p, spatialReference))
+                        .filter(e -> operator.execute(e.geometry, p, spatialReference, null))
                         .collect(Collectors.toList());
             }
             if (currentEntry.isEmpty()) {
@@ -103,7 +105,7 @@ final class Index {
                     sameZoneSegments.add(SameZoneSpan.fromIndexEntries(Collections.emptyList(), (index - 1) * 2 + 1));
                     continue;
                 }
-                if (currentEntry.stream().allMatch(e -> GeometryEngine.contains(e.geometry, p, spatialReference))) {
+                if (currentEntry.stream().allMatch(e -> operator.execute(e.geometry, p, spatialReference, null))) {
                     if (index == points.size() - 1) {
                         sameZoneSegments.add(SameZoneSpan.fromIndexEntries(currentEntry, index * 2 + 1));
                     }

@@ -45,21 +45,23 @@ public class TimeZoneEnginePolylineTest {
 
     @Test
     public void testNonMatchingPoints() {
-        assertEquals(engine.queryPolyline(new double[]{80, 180, 80, 180, 80, 180, 52.52, 13.40, 52.53, 13.30, 54.52, 15.40, 56.52, 16.40}),
+        assertEquals(
                 Arrays.asList(
-                        new SameZoneSpan(new HashSet<>(), 5),
+                        new SameZoneSpan(new HashSet<>(Collections.singletonList(ZoneId.of("Etc/GMT-12"))), 5),
                         new SameZoneSpan(new HashSet<>(Collections.singletonList(ZoneId.of("Europe/Berlin"))), 9),
                         new SameZoneSpan(new HashSet<>(Collections.singletonList(ZoneId.of("Etc/GMT-1"))), 11),
-                        new SameZoneSpan(new HashSet<>(Collections.singletonList(ZoneId.of("Europe/Stockholm"))), 13)));
+                        new SameZoneSpan(new HashSet<>(Collections.singletonList(ZoneId.of("Europe/Stockholm"))), 13)),
+                engine.queryPolyline(new double[]{80, 180, 80, 180, 80, 180, 52.52, 13.40, 52.53, 13.30, 54.52, 15.40, 56.52, 16.40}));
     }
 
     @Test
     public void testNonMatchingLastPoints() {
-        assertEquals(engine.queryPolyline(new double[]{54.89, 23.91, 55.13, 25.57, 54.29, 28.32, 80, 180, 80, 180}),
+        assertEquals(
                 Arrays.asList(
                         new SameZoneSpan(new HashSet<>(Collections.singletonList(ZoneId.of("Europe/Vilnius"))), 3),
                         new SameZoneSpan(new HashSet<>(Collections.singletonList(ZoneId.of("Europe/Minsk"))), 5),
-                        new SameZoneSpan(new HashSet<>(), 9)
-                ));
+                        new SameZoneSpan(new HashSet<>(Collections.singletonList(ZoneId.of("Etc/GMT-12"))), 9)
+                ), 
+                engine.queryPolyline(new double[]{54.89, 23.91, 55.13, 25.57, 54.29, 28.32, 80, 180, 80, 180}));
     }
 }
