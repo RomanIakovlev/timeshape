@@ -44,11 +44,12 @@ final class Index {
     List<ZoneId> query(double latitude, double longitude) {
         ArrayList<ZoneId> result = new ArrayList<>(2);
         Point point = new Point(longitude, latitude);
+        var operator = OperatorIntersects.local();
         QuadTree.QuadTreeIterator iterator = quadTree.getIterator(point, 0);
         for (int i = iterator.next(); i >= 0; i = iterator.next()) {
             int element = quadTree.getElement(i);
             Entry entry = zoneIds.get(element);
-            if (GeometryEngine.contains(entry.geometry, point, spatialReference)) {
+            if(operator.execute(entry.geometry, point, spatialReference, null)) {
                 result.add(entry.zoneId);
             }
         }
@@ -85,12 +86,13 @@ final class Index {
         // 4. goto 1.
         int index = 0;
         boolean lastWasEmpty = false;
+        var operator = OperatorIntersects.local();
         while (index < points.size()) {
             Point p = points.get(index);
             if (currentEntry == null) {
                 currentEntry = potentiallyMatchingEntries
                         .stream()
-                        .filter(e -> GeometryEngine.contains(e.geometry, p, spatialReference))
+                        .filter(e -> operator.execute(e.geometry, p, spatialReference, null))
                         .collect(Collectors.toList());
             }
             if (currentEntry.isEmpty()) {
@@ -103,7 +105,7 @@ final class Index {
                     sameZoneSegments.add(SameZoneSpan.fromIndexEntries(Collections.emptyList(), (index - 1) * 2 + 1));
                     continue;
                 }
-                if (currentEntry.stream().allMatch(e -> GeometryEngine.contains(e.geometry, p, spatialReference))) {
+                if (currentEntry.stream().allMatch(e -> operator.execute(e.geometry, p, spatialReference, null))) {
                     if (index == points.size() - 1) {
                         sameZoneSegments.add(SameZoneSpan.fromIndexEntries(currentEntry, index * 2 + 1));
                     }
@@ -156,21 +158,21 @@ final class Index {
         ArrayList<Entry> zoneIds = new ArrayList<>(size);
         PrimitiveIterator.OfInt indices = IntStream.iterate(0, i -> i + 1).iterator();
         List<String> unknownZones = new ArrayList<>();
-        OperatorContains operatorContains = (OperatorContains) OperatorFactoryLocal.getInstance().getOperator(Operator.Type.Contains);
+        OperatorIntersects operatorIntersects = OperatorIntersects.local();
         features.forEach(f -> {
             String zoneIdName = f.getProperties(0).getValueString();
             try {
                 ZoneId zoneId = ZoneId.of(zoneIdName);
                 getPolygons(f).forEach(polygon -> {
-                    if (accelerateGeometry) {
-                        operatorContains.accelerateGeometry(polygon, spatialReference, Geometry.GeometryAccelerationDegree.enumMild);
-                    }
                     if (GeometryEngine.contains(boundaries, polygon, spatialReference)) {
                         log.debug("Adding zone {} to index", zoneIdName);
+                        if (accelerateGeometry) {
+                            operatorIntersects.accelerateGeometry(polygon, spatialReference, Geometry.GeometryAccelerationDegree.enumMild);
+                        }
                         polygon.queryEnvelope2D(env);
                         int index = indices.next();
                         quadTree.insert(index, env);
-                        zoneIds.add(index, new Entry(zoneId, polygon));
+                        zoneIds.add(index, new Entry(zoneId, polygon));                    
                     } else {
                         log.debug("Not adding zone {} to index because it's out of provided boundaries", zoneIdName);
                     }
