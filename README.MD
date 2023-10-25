@@ -26,7 +26,7 @@ Timeshape is published on Maven Central. The coordinates are the following:
 <dependency>
     <groupId>net.iakovlev</groupId>
     <artifactId>timeshape</artifactId>
-    <version>2023b.18</version>
+    <version>2023b.19</version>
 </dependency>
 ```
 
@@ -35,7 +35,7 @@ Timeshape is published on Maven Central. The coordinates are the following:
 Android developers should add Timeshape to the app level gradle.build as follows:
 
 ```gradle
-implementation('net.iakovlev:timeshape:2023b.18') {
+implementation('net.iakovlev:timeshape:2023b.19') {
   // Exclude standard compression library
   exclude group: 'com.github.luben', module: 'zstd-jni'
 }
