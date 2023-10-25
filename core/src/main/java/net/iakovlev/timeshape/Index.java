@@ -158,21 +158,21 @@ final class Index {
         ArrayList<Entry> zoneIds = new ArrayList<>(size);
         PrimitiveIterator.OfInt indices = IntStream.iterate(0, i -> i + 1).iterator();
         List<String> unknownZones = new ArrayList<>();
-        OperatorContains operatorContains = (OperatorContains) OperatorFactoryLocal.getInstance().getOperator(Operator.Type.Contains);
+        OperatorIntersects operatorIntersects = OperatorIntersects.local();
         features.forEach(f -> {
             String zoneIdName = f.getProperties(0).getValueString();
             try {
                 ZoneId zoneId = ZoneId.of(zoneIdName);
                 getPolygons(f).forEach(polygon -> {
-                    if (accelerateGeometry) {
-                        operatorContains.accelerateGeometry(polygon, spatialReference, Geometry.GeometryAccelerationDegree.enumMild);
-                    }
                     if (GeometryEngine.contains(boundaries, polygon, spatialReference)) {
                         log.debug("Adding zone {} to index", zoneIdName);
+                        if (accelerateGeometry) {
+                            operatorIntersects.accelerateGeometry(polygon, spatialReference, Geometry.GeometryAccelerationDegree.enumMild);
+                        }
                         polygon.queryEnvelope2D(env);
                         int index = indices.next();
                         quadTree.insert(index, env);
-                        zoneIds.add(index, new Entry(zoneId, polygon));
+                        zoneIds.add(index, new Entry(zoneId, polygon));                    
                     } else {
                         log.debug("Not adding zone {} to index because it's out of provided boundaries", zoneIdName);
                     }
