@@ -2,8 +2,8 @@ import scala.sys.process._
 import _root_.io.circe.parser._
 
 val dataVersion = "2023b"
-val softwareVersion = "19"
-val snapshotRelease = false
+val softwareVersion = "20"
+val snapshotRelease = true
 
 val releaseType = if (snapshotRelease) "-SNAPSHOT" else ""
 
@@ -17,14 +17,14 @@ val commonSettings = Seq(
 )
 
 val `commons-compress` = Seq(
-  "org.apache.commons" % "commons-compress" % "1.22",
-  "com.github.luben" % "zstd-jni" % "1.5.2-5"
+  "org.apache.commons" % "commons-compress" % "1.24.0",
+  "com.github.luben" % "zstd-jni" % "1.5.5-6"
 )
 
 lazy val timeshape = (project in file("."))
   .settings(commonSettings)
   .aggregate(core, builder, testApp, `geojson-proto`, benchmarks)
-  .settings(skip in publish := true)
+  .settings(publish / skip := true)
 
 lazy val builderArgument = settingKey[String](
   "Argument to pass to builder, either local path to source data file or version to download")
@@ -46,11 +46,12 @@ lazy val core = (project in file("core"))
     ) ++ `commons-compress`,
     name := "timeshape",
     publishTo := sonatypePublishTo.value,
-    packageOptions in (Compile, packageBin) += Package.ManifestAttributes("Automatic-Module-Name" -> "net.iakovlev.timeshape"),
-    javacOptions ++= Seq("-Xdoclint:none"),
-    resourceGenerators in Compile += Def.taskDyn {
+    Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "net.iakovlev.timeshape"),
+    Compile / doc / javacOptions := Seq("-Xdoclint:none"),
+    Compile / javacOptions := Seq("-source", "8", "-target", "8"),
+    Compile / resourceGenerators += Def.taskDyn {
       val log = streams.value.log
-      val outputPath = (resourceManaged in Compile).value
+      val outputPath = (Compile / resourceManaged).value
       val outputFile = outputPath / "data.tar.zstd"
       outputPath.mkdirs()
       if (!outputFile.exists()) {
@@ -76,11 +77,12 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
   .settings(commonSettings)
   .settings(
     publishTo := sonatypePublishTo.value,
-    version := "1.1.3-SNAPSHOT",
+    version := "1.1.3",
     Compile / PB.targets := Seq(
       PB.gens.java("3.21.12") -> (Compile / sourceManaged).value
     ),
-    javacOptions ++= Seq("-Xdoclint:none"),
+    Compile / doc / javacOptions := Seq("-Xdoclint:none"),
+    Compile / javacOptions := Seq("-source", "8", "-target", "8"),
     releaseTask := {
       publish.value
       val buildState = state.value
@@ -97,7 +99,7 @@ lazy val builder = (project in file("builder"))
       "de.grundid.opendatalab" % "geojson-jackson" % "1.14"
     ) ++ `commons-compress`,
     name := "timeshape-builder",
-    skip in publish := true
+    publish / skip := true
   )
   .dependsOn(`geojson-proto`)
   .enablePlugins(JavaAppPackaging)
@@ -105,7 +107,7 @@ lazy val builder = (project in file("builder"))
 lazy val testApp = (project in file("test-app"))
   .settings(commonSettings)
   .settings(
-    skip in publish := true,
+    publish / skip := true,
     libraryDependencies ++= Seq("org.openjdk.jol" % "jol-core" % "0.9",
                                 "ch.qos.logback" % "logback-classic" % "1.2.3")
   )
@@ -113,6 +115,6 @@ lazy val testApp = (project in file("test-app"))
 
 lazy val benchmarks = (project in file("benchmarks"))
   .settings(commonSettings)
-  .settings(skip in publish := true)
+  .settings(publish / skip := true)
   .dependsOn(core)
   .enablePlugins(JmhPlugin)

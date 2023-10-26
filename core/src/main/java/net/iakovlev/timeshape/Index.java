@@ -44,7 +44,7 @@ final class Index {
     List<ZoneId> query(double latitude, double longitude) {
         ArrayList<ZoneId> result = new ArrayList<>(2);
         Point point = new Point(longitude, latitude);
-        var operator = OperatorIntersects.local();
+        OperatorIntersects operator = OperatorIntersects.local();
         QuadTree.QuadTreeIterator iterator = quadTree.getIterator(point, 0);
         for (int i = iterator.next(); i >= 0; i = iterator.next()) {
             int element = quadTree.getElement(i);
@@ -86,7 +86,7 @@ final class Index {
         // 4. goto 1.
         int index = 0;
         boolean lastWasEmpty = false;
-        var operator = OperatorIntersects.local();
+        OperatorIntersects operator = OperatorIntersects.local();
         while (index < points.size()) {
             Point p = points.get(index);
             if (currentEntry == null) {
@@ -172,7 +172,7 @@ final class Index {
                         polygon.queryEnvelope2D(env);
                         int index = indices.next();
                         quadTree.insert(index, env);
-                        zoneIds.add(index, new Entry(zoneId, polygon));                    
+                        zoneIds.add(index, new Entry(zoneId, polygon));
                     } else {
                         log.debug("Not adding zone {} to index because it's out of provided boundaries", zoneIdName);
                     }

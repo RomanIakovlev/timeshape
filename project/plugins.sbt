@@ -6,5 +6,5 @@ addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.3.4")
 addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.0")
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.13")
 
-libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.10.10"
+libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.11.14"
 libraryDependencies += "io.circe" %% "circe-parser" % "0.12.2"
