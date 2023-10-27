@@ -26,21 +26,24 @@ Timeshape is published on Maven Central. The coordinates are the following:
 <dependency>
     <groupId>net.iakovlev</groupId>
     <artifactId>timeshape</artifactId>
-    <version>2023b.19</version>
+    <version>2023b.20</version>
 </dependency>
 ```
+
+Starting from release 2023b.20, Timeshape re-introduces support for Java 8. It was inadevrtently dropped in one of the previous releases,
+but now it's brought back.
 
 ## Android
 
 Android developers should add Timeshape to the app level gradle.build as follows:
 
 ```gradle
-implementation('net.iakovlev:timeshape:2023b.19') {
+implementation('net.iakovlev:timeshape:2023b.20') {
   // Exclude standard compression library
   exclude group: 'com.github.luben', module: 'zstd-jni'
 }
 // Import aar for native component compilation
-implementation 'com.github.luben:zstd-jni:1.5.2-3@aar'
+implementation 'com.github.luben:zstd-jni:1.5.5-6@aar'
 ```
 
 ## Adopters
