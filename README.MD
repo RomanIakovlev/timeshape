@@ -51,6 +51,7 @@ implementation 'com.github.luben:zstd-jni:1.5.5-11@aar'
 Are you using Timeshape? Please consider opening a pull request to list your organization here:
 
  * Name and website of your organization
+ * [Hopper](https://hopper.com/)
 
 ## Using the library
 
