@@ -43,7 +43,7 @@ implementation('net.iakovlev:timeshape:2023b.20') {
   exclude group: 'com.github.luben', module: 'zstd-jni'
 }
 // Import aar for native component compilation
-implementation 'com.github.luben:zstd-jni:1.5.5-6@aar'
+implementation 'com.github.luben:zstd-jni:1.5.5-11@aar'
 ```
 
 ## Adopters
@@ -51,6 +51,7 @@ implementation 'com.github.luben:zstd-jni:1.5.5-6@aar'
 Are you using Timeshape? Please consider opening a pull request to list your organization here:
 
  * Name and website of your organization
+ * [Hopper](https://hopper.com/)
 
 ## Using the library
 

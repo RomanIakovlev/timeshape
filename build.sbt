@@ -18,7 +18,7 @@ val commonSettings = Seq(
 
 val `commons-compress` = Seq(
   "org.apache.commons" % "commons-compress" % "1.24.0",
-  "com.github.luben" % "zstd-jni" % "1.5.5-6"
+  "com.github.luben" % "zstd-jni" % "1.5.5-11"
 )
 
 lazy val timeshape = (project in file("."))
