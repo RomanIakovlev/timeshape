@@ -1,9 +1,9 @@
 import scala.sys.process._
 import _root_.io.circe.parser._
 
-val dataVersion = "2023b"
-val softwareVersion = "21"
-val snapshotRelease = false
+val dataVersion = "2024a"
+val softwareVersion = "22"
+val snapshotRelease = true
 
 val releaseType = if (snapshotRelease) "-SNAPSHOT" else ""
 
