@@ -17,7 +17,7 @@ val commonSettings = Seq(
 )
 
 val `commons-compress` = Seq(
-  "org.apache.commons" % "commons-compress" % "1.24.0",
+  "org.apache.commons" % "commons-compress" % "1.26.1",
   "com.github.luben" % "zstd-jni" % "1.5.5-11"
 )
 
