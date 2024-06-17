@@ -83,6 +83,15 @@ Data can also be read from an external file, see overloads of `TimeZoneEngine.in
 (see [here](doc/Architecture.md#builder)).
 It is responsibility of caller to close input stream passed to `TimeZoneEngine.initialize`.
 
+##### Improving start up time by using serialization
+
+Initialization on slow devices such as Android phones can take up to 20 seconds. This can be improved by
+serializing an instance of the `TimeZoneEngine` and deserializing on subsequent runs of your program.
+An example of serializing to a file can be found in `TimeZoneEngineSerializationTest.java` in the
+unit tests. Serialization is especially useful if you can limit `TimeZoneEngine` to a portion of the
+data set via a user preference.
+
+
 #### Query for `java.time.ZoneId`:
 
 Once initialization is completed, you can query the `ZoneId` based on latitude and longitude:
