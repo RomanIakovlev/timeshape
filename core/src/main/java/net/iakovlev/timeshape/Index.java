@@ -5,6 +5,7 @@ import net.iakovlev.timeshape.proto.Geojson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,8 +15,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-final class Index {
-    static final class Entry {
+final class Index implements Serializable {
+    static final class Entry implements Serializable {
         final ZoneId zoneId;
         final Geometry geometry;
 
