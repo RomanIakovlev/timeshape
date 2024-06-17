@@ -52,6 +52,7 @@ Are you using Timeshape? Please consider opening a pull request to list your org
 
  * Name and website of your organization
  * [Hopper](https://hopper.com/)
+ * [Natural Light](https://play.google.com/store/apps/details?id=com.blackholeofphotography.naturallight)
 
 ## Using the library
 
