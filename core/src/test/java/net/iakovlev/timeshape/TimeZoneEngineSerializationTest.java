@@ -23,7 +23,7 @@ import static junit.framework.TestCase.assertTrue;
 
 @RunWith(JUnit4.class)
 public class TimeZoneEngineSerializationTest {
-    private static TimeZoneEngine engine = TimeZoneEngine.initialize(0, 5, 0, 5, false);
+    private static TimeZoneEngine engine = TimeZoneEngine.initialize(47.0599, 4.8237, 55.3300, 15.2486, true);
 
     @Test
     public void testSerialzation() {
@@ -31,6 +31,8 @@ public class TimeZoneEngineSerializationTest {
         try {
             serializeTimeZoneEngine (f, engine);
             TimeZoneEngine engine2 = deserializeTimeZoneEngine (f);
+            assertEquals(engine.query(52.52, 13.40), engine2.query(52.52, 13.40));
+
             f.delete ();
         }
         catch (IOException | ClassNotFoundException e) {
