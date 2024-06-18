@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Consumer;
@@ -21,7 +22,7 @@ import java.util.stream.StreamSupport;
  * Class {@link TimeZoneEngine} is used to lookup the instance of
  * {@link java.time.ZoneId} based on latitude and longitude.
  */
-public final class TimeZoneEngine {
+public final class TimeZoneEngine implements Serializable {
 
     private final Index index;
 
