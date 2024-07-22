@@ -38,7 +38,7 @@ but now it's brought back.
 Android developers should add Timeshape to the app level gradle.build as follows:
 
 ```gradle
-implementation('net.iakovlev:timeshape:2023b.21') {
+implementation('net.iakovlev:timeshape:2024a.22') {
   // Exclude standard compression library
   exclude group: 'com.github.luben', module: 'zstd-jni'
 }
