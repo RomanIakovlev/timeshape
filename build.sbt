@@ -3,7 +3,7 @@ import _root_.io.circe.parser._
 
 val dataVersion = "2024a"
 val softwareVersion = "22"
-val snapshotRelease = true
+val snapshotRelease = false
 
 val releaseType = if (snapshotRelease) "-SNAPSHOT" else ""
 
