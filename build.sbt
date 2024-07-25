@@ -7,6 +7,8 @@ val snapshotRelease = true
 
 val releaseType = if (snapshotRelease) "-SNAPSHOT" else ""
 
+val jacksonVersion = "com.fasterxml.jackson.core" % "jackson-core" % "2.17.2"
+
 val commonSettings = Seq(
   organization := "net.iakovlev",
   sonatypeProfileName := "net.iakovlev",
@@ -44,6 +46,7 @@ lazy val core = (project in file("core"))
       "org.slf4j" % "slf4j-api" % "1.7.30",
       "net.iakovlev" % "geojson-proto" % "1.1.3"
     ) ++ `commons-compress`,
+    dependencyOverrides += jacksonVersion,
     name := "timeshape",
     publishTo := sonatypePublishTo.value,
     Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "net.iakovlev.timeshape"),
@@ -95,7 +98,7 @@ lazy val builder = (project in file("builder"))
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "com.fasterxml.jackson.core" % "jackson-core" % "2.17.2",
+      jacksonVersion,
       "de.grundid.opendatalab" % "geojson-jackson" % "1.14"
     ) ++ `commons-compress`,
     name := "timeshape-builder",
