@@ -95,7 +95,7 @@ lazy val builder = (project in file("builder"))
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "com.fasterxml.jackson.core" % "jackson-core" % "2.14.2",
+      "com.fasterxml.jackson.core" % "jackson-core" % "2.17.2",
       "de.grundid.opendatalab" % "geojson-jackson" % "1.14"
     ) ++ `commons-compress`,
     name := "timeshape-builder",
@@ -109,7 +109,7 @@ lazy val testApp = (project in file("test-app"))
   .settings(
     publish / skip := true,
     libraryDependencies ++= Seq("org.openjdk.jol" % "jol-core" % "0.9",
-                                "ch.qos.logback" % "logback-classic" % "1.2.3")
+                                "ch.qos.logback" % "logback-classic" % "1.2.13")
   )
   .dependsOn(core)
 
