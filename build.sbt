@@ -36,6 +36,7 @@ lazy val releaseTask = taskKey[Unit](
 
 lazy val core = (project in file("core"))
   .settings(commonSettings)
+  .dependsOn(`geojson-proto`)
   .settings(
     builderArgument := dataVersion,
     libraryDependencies ++= Seq(
@@ -44,7 +45,7 @@ lazy val core = (project in file("core"))
       "com.novocode" % "junit-interface" % "0.11" % Test
         exclude ("junit", "junit-dep"),
       "org.slf4j" % "slf4j-api" % "1.7.30",
-      "net.iakovlev" % "geojson-proto" % "1.1.3"
+      "net.iakovlev" % "geojson-proto" % "1.1.4-SNAPSHOT"
     ) ++ `commons-compress`,
     dependencyOverrides += jacksonVersion,
     name := "timeshape",
@@ -82,8 +83,9 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
     publishTo := sonatypePublishTo.value,
     version := "1.1.4-SNAPSHOT",
     Compile / PB.targets := Seq(
-      PB.gens.java("3.21.12") -> (Compile / sourceManaged).value
+      PB.gens.java("4.26.1") -> (Compile / sourceManaged).value
     ),
+    PB.protocVersion := "4.26.1",
     Compile / doc / javacOptions := Seq("-Xdoclint:none"),
     Compile / javacOptions := Seq("-source", "8", "-target", "8"),
     releaseTask := {
