@@ -84,6 +84,19 @@ Data can also be read from an external file, see overloads of `TimeZoneEngine.in
 (see [here](doc/Architecture.md#builder)).
 It is responsibility of caller to close input stream passed to `TimeZoneEngine.initialize`.
 
+There is an overload of `TimeZoneEngine.initialize` method that accepts a boolean parameter called
+`accelerateGeometry`. If that parameter is equals to `true`, Timeshape will build a bitmap index
+for each polygon it loads. This requires some extra memory and takes time at initialization, hence
+that parameter is being `false` by default, however it speeds up the typical point-in-polygon query
+approximately 2.5 times. See performance benchmarks in `AcceleratedGeometryBenchmark.java`, and
+here is the result:
+```
+[info] Benchmark                                               Mode  Cnt   Score   Error  Units
+[info] AcceleratedGeometryBenchmark.testAcceleratedEngine     thrpt   10  38.142 ± 0.448  ops/s
+[info] AcceleratedGeometryBenchmark.testNonAcceleratedEngine  thrpt   10  15.289 ± 0.121  ops/s
+```
+
+
 ##### Improving start up time by using serialization
 
 Initialization on slow devices such as Android phones can take up to 20 seconds. This can be improved by
