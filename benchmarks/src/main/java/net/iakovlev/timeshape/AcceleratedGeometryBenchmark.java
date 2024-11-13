@@ -16,7 +16,7 @@ public class AcceleratedGeometryBenchmark {
                 23.1291f, 113.2644f, // Guangzhou, China
                 28.7041f, 77.1025f, // Delhi, India
                 19.4326f, -99.1332f, // Mexico City, Mexico
-                31.2304f, 121.4737f, // Sao Paulo, Brazil
+                -23.551f, -46.6333f, // Sao Paulo, Brazil
                 34.6937f, 135.5023f, // Osaka, Japan
                 13.7563f, 100.5018f, // Bangkok, Thailand
                 39.9042f, 116.4074f, // Beijing, China
