@@ -1,4 +1,4 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package net.iakovlev.timeshape.proto;
 
@@ -7,12 +7,12 @@ message FeatureCollection {
 }
 
 message Feature {
-    required Geometry geometry = 1;
+    Geometry geometry = 1;
     repeated Property properties = 2;
 }
 
 message Point {
-    required Position coordinates = 1;
+    Position coordinates = 1;
 }
 
 message MultiPoint {
@@ -40,8 +40,8 @@ message GeometryCollection {
 }
 
 message Position {
-    required float lon = 1;
-    required float lat = 2;
+    float lon = 1;
+    float lat = 2;
 }
 
 message Geometry {
@@ -57,7 +57,7 @@ message Geometry {
 }
 
 message Property {
-    required string key = 1;
+    string key = 1;
     oneof value {
         string valueString = 2;
         double valueNumber = 3;
