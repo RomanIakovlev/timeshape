@@ -20,6 +20,9 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
           cache: 'sbt'
+          
+      - name: Setup sbt launcher
+        uses: sbt/setup-sbt@v1
 
       - name: Setup Sonatype key
         run: |
