@@ -44,7 +44,7 @@ lazy val core = (project in file("core"))
       "com.novocode" % "junit-interface" % "0.11" % Test
         exclude ("junit", "junit-dep"),
       "org.slf4j" % "slf4j-api" % "1.7.30",
-      "net.iakovlev" % "geojson-proto" % "1.1.4"
+      "net.iakovlev" % "geojson-proto" % "1.1.5-SNAPSHOT"
     ) ++ `commons-compress`,
     dependencyOverrides += jacksonVersion,
     name := "timeshape",
