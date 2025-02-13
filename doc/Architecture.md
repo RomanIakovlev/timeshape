@@ -33,7 +33,7 @@ Below you'll find some information about those individual projects.
 ### geojson-protobuf
 This project contains the protobuf definitions corresponding to GeoJSON format. 
 Those definitions are in file `geojson-proto/src/main/protobuf/geojson.proto`. Java code to read and write such protobuf
-messages is generated during compile time by [sbt-protobuf](https://github.com/sbt/sbt-protobuf) sbt plugin.
+messages is generated during compile time by [sbt-protoc](https://github.com/thesamet/sbt-protoc) sbt plugin.
 Other projects (`core` and `builder`), which must read or write the protobuf, use those generated Java classes, and therefore
 depend on `geojson-protobuf` in classpath sense.
 
