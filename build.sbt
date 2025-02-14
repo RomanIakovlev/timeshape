@@ -2,7 +2,7 @@ import scala.sys.process._
 import _root_.io.circe.parser._
 
 val dataVersion = "2024a"
-val softwareVersion = "25"
+val softwareVersion = "26"
 val snapshotRelease = true
 
 val releaseType = if (snapshotRelease) "-SNAPSHOT" else ""
@@ -44,7 +44,7 @@ lazy val core = (project in file("core"))
       "com.novocode" % "junit-interface" % "0.11" % Test
         exclude ("junit", "junit-dep"),
       "org.slf4j" % "slf4j-api" % "1.7.30",
-      "net.iakovlev" % "geojson-proto" % "1.1.5-SNAPSHOT"
+      "net.iakovlev" % "geojson-proto" % "1.1.6-SNAPSHOT"
     ) ++ `commons-compress`,
     dependencyOverrides += jacksonVersion,
     name := "timeshape",
@@ -80,7 +80,7 @@ lazy val `geojson-proto` = (project in file("geojson-proto"))
   .settings(commonSettings)
   .settings(
     publishTo := sonatypePublishTo.value,
-    version := "1.1.5-SNAPSHOT",
+    version := "1.1.6-SNAPSHOT",
     Compile / PB.targets := Seq(
       PB.gens.java("4.29.3") -> (Compile / sourceManaged).value
     ),

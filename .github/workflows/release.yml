@@ -24,6 +24,9 @@ jobs:
       - name: Setup sbt launcher
         uses: sbt/setup-sbt@v1
 
+      - name: Setup sbt launcher
+        uses: sbt/setup-sbt@v1
+
       - name: Setup Sonatype key
         run: |
           mkdir -p /tmp/gpg
