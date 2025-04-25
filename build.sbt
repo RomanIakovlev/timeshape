@@ -2,8 +2,8 @@ import scala.sys.process._
 import _root_.io.circe.parser._
 
 val dataVersion = "2025b"
-val softwareVersion = "26"
-val snapshotRelease = false
+val softwareVersion = "27"
+val snapshotRelease = true
 
 val releaseType = if (snapshotRelease) "-SNAPSHOT" else ""
 
