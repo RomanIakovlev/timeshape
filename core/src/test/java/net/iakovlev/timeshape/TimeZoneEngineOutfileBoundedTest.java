@@ -22,7 +22,7 @@ public class TimeZoneEngineOutfileBoundedTest {
 
     @BeforeClass
     public static void initEngine() {
-        try (InputStream resourceAsStream = new FileInputStream("./core/target/resource_managed/main/data.tar.zstd");
+        try (InputStream resourceAsStream = new FileInputStream("target/classes/data.tar.zstd");
              TarArchiveInputStream f = new TarArchiveInputStream(new ZstdCompressorInputStream(resourceAsStream))) {
             engine = TimeZoneEngine.initialize(f);
         } catch (NullPointerException | IOException e) {

@@ -4,3 +4,4 @@ target
 output.pb.7z
 .bsp
 .vscode
+.cache
