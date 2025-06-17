@@ -36,20 +36,19 @@ jobs:
           <settings>
             <servers>
               <server>
-                <id>ossrh</id>
-                <username>${{ secrets.SONATYPE_ORG_USER }}</username>
-                <password>${{ secrets.SONATYPE_ORG_PASSWORD }}</password>
+                <id>central</id>
+                <username>${{ secrets.CENTRAL_SONATYPE_COM_USERNAME }}</username>
+                <password>${{ secrets.CENTRAL_SONATYPE_COM_PASSWORD }}</password>
               </server>
             </servers>
             <profiles>
               <profile>
-                <id>ossrh</id>
+                <id>central</id>
                 <activation>
                   <activeByDefault>true</activeByDefault>
                 </activation>
                 <properties>
                   <gpg.keyname>${{ secrets.SONATYPE_KEY_ID }}</gpg.keyname>
-                  <gpg.passphraseServerId>ossrh</gpg.passphraseServerId>
                 </properties>
               </profile>
             </profiles>
@@ -62,14 +61,8 @@ jobs:
           export SOURCE_DATE_EPOCH=$(date +%s)
           make test
           
-          # Check if this is a release version (non-SNAPSHOT)
+          # Deploy to Central Portal (handles both snapshots and releases)
           PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "Project version: $PROJECT_VERSION"
-          
-          if [[ "$PROJECT_VERSION" == *"-SNAPSHOT" ]]; then
-            echo "Snapshot version detected, deploying to snapshots repository"
-            mvn deploy -q
-          else
-            echo "Release version detected, deploying to Maven Central with release profile"
-            mvn deploy -Prelease -DskipTests -Dgpg.passphrase=""
-          fi
+          echo "Deploying to Sonatype Central Portal..."
+          mvn deploy -Prelease -DskipTests -Dgpg.passphrase=""

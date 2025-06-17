@@ -112,17 +112,12 @@ install: generate-data
 	@echo "Installing to local Maven repository..."
 	@mvn install
 
-# Deploy to remote repository (requires release profile)
+# Deploy to Sonatype Central Portal (handles both snapshots and releases)
 deploy: generate-data
-	@echo "Deploying to remote repository..."
+	@echo "Deploying to Sonatype Central Portal..."
 	@PROJECT_VERSION=$$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout); \
-	if [[ "$$PROJECT_VERSION" == *"-SNAPSHOT" ]]; then \
-		echo "Deploying snapshot version $$PROJECT_VERSION to snapshots repository"; \
-		mvn deploy -DskipTests; \
-	else \
-		echo "Deploying release version $$PROJECT_VERSION to Maven Central"; \
-		mvn deploy -Prelease -DskipTests; \
-	fi
+	echo "Deploying version $$PROJECT_VERSION to Central Portal"; \
+	mvn deploy -Prelease -DskipTests
 
 # Force regenerate data (useful for development)
 force-generate-data: clean-data generate-data
@@ -133,12 +128,11 @@ deploy-dry-run:
 	@PROJECT_VERSION=$$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout); \
 	echo "Current version: $$PROJECT_VERSION"; \
 	if [[ "$$PROJECT_VERSION" == *"-SNAPSHOT" ]]; then \
-		echo "-> Would deploy SNAPSHOT to snapshots repository"; \
-		echo "-> Command: mvn deploy -DskipTests"; \
+		echo "-> Would deploy SNAPSHOT to Sonatype Central Portal"; \
 	else \
-		echo "-> Would deploy RELEASE to Maven Central"; \
-		echo "-> Command: mvn deploy -Prelease -DskipTests"; \
+		echo "-> Would deploy RELEASE to Sonatype Central Portal"; \
 	fi; \
+	echo "-> Command: mvn deploy -Prelease -DskipTests"; \
 	echo "Modules that would be deployed:"; \
 	mvn help:evaluate -Dexpression=project.modules -q -DforceStdout | grep -v "maven.deploy.skip=true" || true
 
@@ -161,7 +155,7 @@ help:
 	@echo "  package           - Package all modules"
 	@echo "  test              - Run all tests"
 	@echo "  install           - Install to local Maven repository"
-	@echo "  deploy            - Deploy to remote repository (snapshots or Maven Central)"
+	@echo "  deploy            - Deploy to Sonatype Central Portal"
 	@echo "  deploy-dry-run    - Show what would be deployed without deploying"
 	@echo "  clean             - Clean build artifacts and generated data"
 	@echo "  clean-data        - Clean only generated data files"
