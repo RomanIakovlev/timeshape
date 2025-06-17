@@ -18,6 +18,7 @@
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
+        <skipPublishing>true</skipPublishing>
         <jmh.version>1.37</jmh.version>
     </properties>
 
