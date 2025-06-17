@@ -10,43 +10,59 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up JDK 11
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '11'
           distribution: 'temurin'
-          cache: 'sbt'
-
-      - name: Setup sbt launcher
-        uses: sbt/setup-sbt@v1
+          cache: 'maven'
 
       - name: Setup Sonatype key
         run: |
           mkdir -p /tmp/gpg
-          GNUPGHOME=/tmp/gpg
-          export GNUPGHOME
-          gpg --decrypt --batch --yes --passphrase  "${{ secrets.SONATYPE_KEY_PASSWORD }}" sonatype.key.gpg | gpg --import
+          chmod 700 /tmp/gpg
+          export GNUPGHOME=/tmp/gpg
+          gpg --batch --yes --decrypt --passphrase "${{ secrets.SONATYPE_KEY_PASSWORD }}" sonatype.key.gpg | gpg --batch --yes --import
+          gpg --list-secret-keys --keyid-format LONG
 
-      - name: Setup publishing
+      - name: Setup Maven settings
         run: |
-          cat <<-EOF > sonatype.sbt
-            credentials in Global += Credentials(
-            "GnuPG Key ID",
-            "gpg",
-            "${{ secrets.SONATYPE_KEY_ID }}",
-            "ignored"
-          )
-          credentials in Global += Credentials(
-            "Sonatype Nexus Repository Manager",
-            "oss.sonatype.org",
-            "${{ secrets.SONATYPE_ORG_USER }}",
-            "${{ secrets.SONATYPE_ORG_PASSWORD }}"
-          )
+          mkdir -p ~/.m2
+          cat <<-EOF > ~/.m2/settings.xml
+          <settings>
+            <servers>
+              <server>
+                <id>central</id>
+                <username>${{ secrets.CENTRAL_SONATYPE_COM_USERNAME }}</username>
+                <password>${{ secrets.CENTRAL_SONATYPE_COM_PASSWORD }}</password>
+              </server>
+            </servers>
+            <profiles>
+              <profile>
+                <id>central</id>
+                <activation>
+                  <activeByDefault>true</activeByDefault>
+                </activation>
+                <properties>
+                  <gpg.keyname>${{ secrets.SONATYPE_KEY_ID }}</gpg.keyname>
+                </properties>
+              </profile>
+            </profiles>
+          </settings>
           EOF
 
-      - name: Publish to Maven Central
-        run: GNUPGHOME=/tmp/gpg SOURCE_DATE_EPOCH=$(date +%s) sbt test releaseTask
+      - name: Run tests and publish to Maven Central
+        run: |
+          export GNUPGHOME=/tmp/gpg
+          export SOURCE_DATE_EPOCH=$(date +%s)
+          make test
+          
+          # Deploy to Central Portal (handles both snapshots and releases)
+          PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "Project version: $PROJECT_VERSION"
+          echo "Deploying to Sonatype Central Portal..."
+          mvn deploy -Prelease -DskipTests -Dgpg.passphrase=""

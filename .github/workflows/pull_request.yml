@@ -1,4 +1,4 @@
-name: Scala CI
+name: Maven CI
 
 on: [pull_request]
 
@@ -11,14 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up JDK 11
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '11'
         distribution: 'temurin'
-        cache: 'sbt'
-    - name: Setup sbt launcher
-      uses: sbt/setup-sbt@v1
+        cache: 'maven'
     - name: Run tests
-      run: sbt test
+      run: make test
