@@ -23,6 +23,8 @@ $(CACHE_DIR):
 # Build the builder JAR if it doesn't exist or is out of date
 $(BUILDER_JAR): builder/src/main/java/net/iakovlev/timeshape/*.java geojson-proto/src/main/protobuf/geojson.proto
 	@echo "Building timeshape-builder and dependencies..."
+	@echo "  - Installing parent POM..."
+	@$(MVN) -q -N install
 	@echo "  - Compiling protobuf and installing geojson-proto..."
 	@cd geojson-proto && $(MVN) -q compile install
 	@echo "  - Compiling builder..."
