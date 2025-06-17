@@ -42,9 +42,6 @@ $(CACHED_DATA): $(CACHE_DIR)
 		exit 1; \
 	fi
 
-# Download timezone data (public target)
-download-data: $(CACHED_DATA)
-
 # Execute builder using Maven (ensures same Java as Maven)
 run-builder:
 	@if [ -f "$(CACHED_DATA)" ]; then \
@@ -74,45 +71,21 @@ generate-data: $(OUTPUT_DIR) $(BUILDER_JAR)
 		fi; \
 	fi
 
-# Clean generated files
-clean-data:
-	@echo "Cleaning generated data files..."
-	@rm -f $(OUTPUT_FILE)
+# Clean all build artifacts and generated data
+clean:
+	@echo "Cleaning build artifacts and generated data..."
+	@mvn clean
 	@rm -f /tmp/timezones-*.zip
 
-# Clean cache
-clean-cache:
-	@echo "Cleaning cache directory..."
-	@rm -rf $(CACHE_DIR)
-
-# Clean all build artifacts
-clean: clean-data
-	@echo "Cleaning all build artifacts..."
-	@mvn clean
-
 # Clean everything including cache
-clean-all: clean clean-cache
-	@echo "Cleaned all artifacts and cache"
-
-# Build all modules
-build: generate-data
-	@echo "Building all modules..."
-	@mvn compile
-
-# Package all modules
-package: generate-data
-	@echo "Packaging all modules..."
-	@mvn package
+clean-all: clean
+	@echo "Cleaning cache..."
+	@rm -rf $(CACHE_DIR)
 
 # Test all modules
 test: generate-data
 	@echo "Running tests..."
 	@mvn test
-
-# Install to local repository
-install: generate-data
-	@echo "Installing to local Maven repository..."
-	@mvn install
 
 # Deploy to Sonatype Central Portal (handles both snapshots and releases)
 deploy: generate-data
@@ -122,7 +95,7 @@ deploy: generate-data
 	mvn deploy -Prelease -DskipTests
 
 # Force regenerate data (useful for development)
-force-generate-data: clean-data generate-data
+force-generate-data: clean generate-data
 
 # Dry-run deployment (shows what would be deployed)
 deploy-dry-run:
@@ -151,17 +124,11 @@ show-config:
 help:
 	@echo "Available targets:"
 	@echo "  generate-data     - Generate data.tar.zstd resource file"
-	@echo "  download-data     - Download timezone data to cache"
 	@echo "  run-builder       - Execute builder using Maven"
-	@echo "  build             - Compile all modules"
-	@echo "  package           - Package all modules"
 	@echo "  test              - Run all tests"
-	@echo "  install           - Install to local Maven repository"
 	@echo "  deploy            - Deploy to Sonatype Central Portal"
 	@echo "  deploy-dry-run    - Show what would be deployed without deploying"
 	@echo "  clean             - Clean build artifacts and generated data"
-	@echo "  clean-data        - Clean only generated data files"
-	@echo "  clean-cache       - Clean only cache directory"
 	@echo "  clean-all         - Clean everything including cache"
 	@echo "  force-generate-data - Force regenerate data file"
 	@echo "  show-config       - Show current configuration"
@@ -170,4 +137,4 @@ help:
 	@echo "Variables:"
 	@echo "  DATA_VERSION      - Timezone data version (default: $(DATA_VERSION))"
 
-.PHONY: run-builder generate-data download-data build package test install deploy deploy-dry-run clean clean-data clean-cache clean-all force-generate-data show-config help
+.PHONY: run-builder generate-data test deploy deploy-dry-run clean clean-all force-generate-data show-config help
