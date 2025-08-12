@@ -7,7 +7,7 @@
     <parent>
         <groupId>net.iakovlev</groupId>
         <artifactId>timeshape-parent</artifactId>
-        <version>2025b.27-SNAPSHOT</version>
+        <version>2025b.27</version>
     </parent>
 
     <artifactId>timeshape-benchmarks</artifactId>
