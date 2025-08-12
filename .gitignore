@@ -5,3 +5,4 @@ output.pb.7z
 .bsp
 .vscode
 .cache
+dependency-reduced-pom.xml
