@@ -6,7 +6,7 @@
 
     <groupId>net.iakovlev</groupId>
     <artifactId>timeshape-parent</artifactId>
-    <version>2025b.27-SNAPSHOT</version>
+    <version>2025b.27</version>
     <packaging>pom</packaging>
 
     <name>Timeshape Parent</name>
