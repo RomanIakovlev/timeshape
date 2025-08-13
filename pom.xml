@@ -125,6 +125,11 @@
                     <publishingServerId>central</publishingServerId>
                     <autoPublish>true</autoPublish>
                     <waitUntil>published</waitUntil>
+                    <excludeArtifacts>
+                        <excludeArtifact>timeshape-benchmarks</excludeArtifact>
+                        <excludeArtifact>timeshape-testapp</excludeArtifact>
+                        <excludeArtifact>timeshape-builder</excludeArtifact>
+                    </excludeArtifacts>
                 </configuration>
             </plugin>
         </plugins>
