@@ -6,7 +6,7 @@
 
     <groupId>net.iakovlev</groupId>
     <artifactId>timeshape-parent</artifactId>
-    <version>2025b.27</version>
+    <version>2025b.28</version>
     <packaging>pom</packaging>
 
     <name>Timeshape Parent</name>
@@ -73,7 +73,7 @@
             <dependency>
                 <groupId>net.iakovlev</groupId>
                 <artifactId>geojson-proto</artifactId>
-                <version>1.1.6-SNAPSHOT</version>
+                <version>1.1.6</version>
             </dependency>
             <dependency>
                 <groupId>net.iakovlev</groupId>
