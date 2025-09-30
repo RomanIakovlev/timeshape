@@ -51,6 +51,7 @@ implementation 'com.github.luben:zstd-jni:1.5.5-11@aar'
 Are you using Timeshape? Please consider opening a pull request to list your organization here:
 
  * Name and website of your organization
+ * [AirPing](https://airping.app/)
  * [Hopper](https://hopper.com/)
  * [Natural Light](https://play.google.com/store/apps/details?id=com.blackholeofphotography.naturallight)
 
