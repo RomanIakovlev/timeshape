@@ -125,6 +125,7 @@
                     <publishingServerId>central</publishingServerId>
                     <autoPublish>true</autoPublish>
                     <waitUntil>published</waitUntil>
+                    <ignorePublishedComponents>true</ignorePublishedComponents>
                     <excludeArtifacts>
                         <excludeArtifact>timeshape-benchmarks</excludeArtifact>
                         <excludeArtifact>timeshape-testapp</excludeArtifact>
