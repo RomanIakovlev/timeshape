@@ -11,19 +11,13 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.io.File;
 
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
 
 @RunWith(JUnit4.class)
 public class TimeZoneEngineSerializationTest {
-    private static TimeZoneEngine engine = TimeZoneEngine.initialize(47.0599, 4.8237, 55.3300, 15.2486, true);
+    private final static TimeZoneEngine engine = TimeZoneEngine.initialize(47.0599, 4.8237, 55.3300, 15.2486, true);
 
     @Test
     public void testSerialzation() {
@@ -48,6 +42,7 @@ public class TimeZoneEngineSerializationTest {
      *
      * @param f Destination File. 
      * @param eng Instance of TimeZoneEngine to serialize
+    * @throws java.io.IOException
      */
 
     public void serializeTimeZoneEngine (File f, TimeZoneEngine eng) throws IOException
@@ -64,7 +59,10 @@ public class TimeZoneEngineSerializationTest {
      * Creates a new instance of {@link TimeZoneEngine} from previously serialized data.
      * This is a blocking long running operation.
      *
+    * @param f File to de-serialize from
      * @return an initialized instance of {@link TimeZoneEngine}
+    * @throws java.io.IOException
+    * @throws java.lang.ClassNotFoundException
      */
     public static TimeZoneEngine deserializeTimeZoneEngine (File f) throws IOException, ClassNotFoundException
     {
