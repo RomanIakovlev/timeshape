@@ -25,6 +25,9 @@ import java.util.stream.StreamSupport;
 public final class TimeZoneEngine implements Serializable {
 
     private final Index index;
+    
+    private final static int NUMBER_OF_TIMEZONES = 449; // can't get number of entries from tar, need to set manually
+    private final static String DATA_FILE_NAME = "/data.tar.zstd";
 
     private final static double MIN_LAT = -90;
     private final static double MIN_LON = -180;
@@ -80,6 +83,25 @@ public final class TimeZoneEngine implements Serializable {
             }
         };
     }
+    
+    
+    private static Stream<Geojson.Feature> spliterateInputStream(TarArchiveInputStream f) {
+        Spliterator<TarArchiveEntry> tarArchiveEntrySpliterator = makeSpliterator(f);
+        return StreamSupport.stream(tarArchiveEntrySpliterator, false).map(n -> {
+            try {
+                if (n != null) {
+                    log.debug("Processing archive entry {}", n.getName());
+                    byte[] e = new byte[(int) n.getSize()];
+                    f.read(e);
+                    return Geojson.Feature.parseFrom(e);
+                } else {
+                    throw new RuntimeException("Data entry is not found in file");
+                }
+            } catch (NullPointerException | IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+    }
 
     /**
      * Queries the {@link TimeZoneEngine} for a {@link java.time.ZoneId}
@@ -103,6 +125,7 @@ public final class TimeZoneEngine implements Serializable {
      * @return {@code Optional<ZoneId>#of(ZoneId)} if input corresponds
      * to some zone, or {@link Optional#empty()} otherwise.
      */
+    @SuppressWarnings("SizeReplaceableByIsEmpty")
     public Optional<ZoneId> query(double latitude, double longitude) {
         final List<ZoneId> result = index.query(latitude, longitude);
         return result.size() > 0 ? Optional.of(result.get(0)) : Optional.empty();
@@ -138,6 +161,7 @@ public final class TimeZoneEngine implements Serializable {
      * Creates a new instance of {@link TimeZoneEngine} and initializes it.
      * This is a blocking long running operation.
      *
+     * @param accelerateGeometry Increase query speed at the expense of memory utilization
      * @return an initialized instance of {@link TimeZoneEngine}
      */
     public static TimeZoneEngine initialize(boolean accelerateGeometry) {
@@ -169,6 +193,7 @@ public final class TimeZoneEngine implements Serializable {
      * }
      * }}}
      *
+     * @param f Input stream of timezone data tar archive
      * @return an initialized instance of {@link TimeZoneEngine}
      */
     public static TimeZoneEngine initialize(TarArchiveInputStream f) {
@@ -188,6 +213,13 @@ public final class TimeZoneEngine implements Serializable {
      * throw new RuntimeException(e);
      * }
      * }}}
+     * 
+     * @param minLat Minimum latitude of bounding box
+     * @param minLon Minimum longitude of bounding box
+     * @param maxLat Maximum latitude of bounding box
+     * @param maxLon Maximum longitude of bounding box
+     * @param accelerateGeometry Increase query speed at the expense of memory utilization
+     * @param f Input stream of timezone data tar archive
      *
      * @return an initialized instance of {@link TimeZoneEngine}
      */
@@ -199,40 +231,56 @@ public final class TimeZoneEngine implements Serializable {
                                             TarArchiveInputStream f) {
         log.info("Initializing with bounding box: {}, {}, {}, {}", minLat, minLon, maxLat, maxLon);
         validateCoordinates(minLat, minLon, maxLat, maxLon);
-        Spliterator<TarArchiveEntry> tarArchiveEntrySpliterator = makeSpliterator(f);
-        Stream<Geojson.Feature> featureStream = StreamSupport.stream(tarArchiveEntrySpliterator, false).map(n -> {
-            try {
-                if (n != null) {
-                    log.debug("Processing archive entry {}", n.getName());
-                    byte[] e = new byte[(int) n.getSize()];
-                    f.read(e);
-                    return Geojson.Feature.parseFrom(e);
-                } else {
-                    throw new RuntimeException("Data entry is not found in file");
-                }
-            } catch (NullPointerException | IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
-        int numberOfTimezones = 449; // can't get number of entries from tar, need to set manually
+        Stream<Geojson.Feature> featureStream = spliterateInputStream (f);
+
         Envelope boundaries = new Envelope(minLon, minLat, maxLon, maxLat);
         return new TimeZoneEngine(
                 Index.build(
                         featureStream,
-                        numberOfTimezones,
+                        NUMBER_OF_TIMEZONES,
                         boundaries,
                         accelerateGeometry));
     }
-
 
     /**
      * Creates a new instance of {@link TimeZoneEngine} and initializes it.
      * This is a blocking long running operation.
      *
+     * @param timeZones List of ZoneIds to load. 
+     * @param accelerateGeometry Increase query speed at the expense of memory utilization
+     * @param numberOfTimeZones How many timezones are in the tar archive.
+     * @param f Input stream of timezone data tar archive
+     * @return an initialized instance of {@link TimeZoneEngine}
+     */
+    
+    public static TimeZoneEngine initialize(Set<ZoneId> timeZones,
+                                            boolean accelerateGeometry,
+                                            int numberOfTimeZones,
+                                            TarArchiveInputStream f) {
+        log.info("Initializing with list of time zones");
+        Stream<Geojson.Feature> featureStream = spliterateInputStream (f);
+
+        return new TimeZoneEngine(
+                Index.build(
+                        featureStream,
+                        numberOfTimeZones,
+                        timeZones,
+                        accelerateGeometry));
+    }
+
+    /**
+     * Creates a new instance of {@link TimeZoneEngine} and initializes it.
+     * This is a blocking long running operation.
+     *
+     * @param minLat Minimum latitude of bounding box
+     * @param minLon Minimum longitude of bounding box
+     * @param maxLat Maximum latitude of bounding box
+     * @param maxLon Maximum longitude of bounding box
+     * @param accelerateGeometry Increase query speed at the expense of memory utilization
      * @return an initialized instance of {@link TimeZoneEngine}
      */
     public static TimeZoneEngine initialize(double minLat, double minLon, double maxLat, double maxLon, boolean accelerateGeometry) {
-        try (InputStream resourceAsStream = TimeZoneEngine.class.getResourceAsStream("/data.tar.zstd")) {
+        try (InputStream resourceAsStream = TimeZoneEngine.class.getResourceAsStream(DATA_FILE_NAME)) {
             try (ZstdInputStream unzipStream = new ZstdInputStream(resourceAsStream)) {
                 try (BufferedInputStream bufferedStream = new BufferedInputStream(unzipStream)) {
                     try (TarArchiveInputStream shapeInputStream = new TarArchiveInputStream(bufferedStream)) {
@@ -245,4 +293,29 @@ public final class TimeZoneEngine implements Serializable {
             throw new RuntimeException(e);
         }
     }
+    
+    
+    /**
+     * Creates a new instance of {@link TimeZoneEngine} and initializes it.
+     * This is a blocking long running operation.
+     *
+     * @param timeZones List of ZoneIds to load. 
+     * @param accelerateGeometry Increase query speed at the expense of memory utilization
+     * @return an initialized instance of {@link TimeZoneEngine}
+     */
+    public static TimeZoneEngine initialize(Set<ZoneId> timeZones, boolean accelerateGeometry) {
+        try (InputStream resourceAsStream = TimeZoneEngine.class.getResourceAsStream("/data.tar.zstd")) {
+            try (ZstdInputStream unzipStream = new ZstdInputStream(resourceAsStream)) {
+                try (BufferedInputStream bufferedStream = new BufferedInputStream(unzipStream)) {
+                    try (TarArchiveInputStream shapeInputStream = new TarArchiveInputStream(bufferedStream)) {
+                        return initialize(timeZones, accelerateGeometry, NUMBER_OF_TIMEZONES,  shapeInputStream);
+                    }
+                }
+            }
+        } catch (NullPointerException | IOException e) {
+            log.error("Unable to read resource file", e);
+            throw new RuntimeException(e);
+        }
+    }
+    
 }

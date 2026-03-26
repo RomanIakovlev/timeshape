@@ -10,7 +10,9 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.PrimitiveIterator;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -151,6 +153,7 @@ final class Index implements Serializable {
         }
     }
 
+    @SuppressWarnings("SizeReplaceableByIsEmpty")
     static Index build(Stream<Geojson.Feature> features, int size, Envelope boundaries, boolean accelerateGeometry) {
         Envelope2D boundariesEnvelope = new Envelope2D();
         boundaries.queryEnvelope2D(boundariesEnvelope);
@@ -192,4 +195,47 @@ final class Index implements Serializable {
         return new Index(quadTree, zoneIds);
     }
 
+    
+    @SuppressWarnings("SizeReplaceableByIsEmpty")
+    static Index build(Stream<Geojson.Feature> features, int size, Set<ZoneId> timeZones, boolean accelerateGeometry) {
+        Envelope2D boundariesEnvelope = new Envelope2D();
+        Envelope boundaries = new Envelope(-180, -90, 180, +90);// (minLon, minLat, maxLon, maxLat);
+        boundaries.queryEnvelope2D(boundariesEnvelope);
+        QuadTree quadTree = new QuadTree(boundariesEnvelope, 8);
+        Envelope2D env = new Envelope2D();
+        ArrayList<Entry> zoneIds = new ArrayList<>(size);
+        PrimitiveIterator.OfInt indices = IntStream.iterate(0, i -> i + 1).iterator();
+        List<String> unknownZones = new ArrayList<>();
+        OperatorIntersects operatorIntersects = OperatorIntersects.local();
+        features.forEach(f -> {
+            String zoneIdName = f.getProperties(0).getValueString();
+            try {
+                ZoneId zoneId = ZoneId.of(zoneIdName);
+                if (timeZones.contains (zoneId)) {
+                    getPolygons(f).forEach(polygon -> {
+                        log.debug("Adding zone {} to index", zoneIdName);
+                        if (accelerateGeometry) {
+                            operatorIntersects.accelerateGeometry(polygon, spatialReference, Geometry.GeometryAccelerationDegree.enumMild);
+                        }
+                        polygon.queryEnvelope2D(env);
+                        int index = indices.next();
+                        quadTree.insert(index, env);
+                        zoneIds.add(index, new Entry(zoneId, polygon));
+                    });
+                } else {
+                    log.debug("Not adding zone {} to index because it's out of provided boundaries", zoneIdName);
+                }
+            } catch (Exception ex) {
+                unknownZones.add(zoneIdName);
+            }
+        });
+        if (unknownZones.size() != 0) {
+            String allUnknownZones = String.join(", ", unknownZones);
+            log.error(
+                    "Some of the zone ids were not recognized by the Java runtime and will be ignored. " +
+                            "The most probable reason for this is outdated Java runtime version. " +
+                            "The following zones were not recognized: " + allUnknownZones);
+        }
+        return new Index(quadTree, zoneIds);
+    }
 }

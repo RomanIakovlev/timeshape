@@ -77,6 +77,15 @@ TimeZoneEngine engine = TimeZoneEngine.initialize(47.0599, 4.8237, 55.3300, 15.2
 It is important to mention that for the time zone to be loaded by the second method,
 it must be covered by the bounding box completely, not just intersect with it.
 
+if you have difficulty determining the bounding box, you may prefer to use a list of ZoneIds instead.
+```Java
+Set<ZoneId> timeZones = new HashSet<> ();
+timeZones.add(ZoneId.of("Europe/Berlin"));
+timeZones.add(ZoneId.of("America/Detroit"));
+TimeZoneEngine engine = TimeZoneEngine.initialize (timeZones, true);
+
+```
+
 During initialization, the data is read from resource and the index is built.
 Initialization takes a significant amount of time (approximately 1 second), so do it only once in program lifetime.
 
@@ -141,7 +150,7 @@ for information about areas of the world where multiple time zones are to be exp
 
 Timeshape supports querying of multiple sequential geo points (a polyline, e.g. a GPS trace) in an optimized way using method
 `List<SameZoneSpan> queryPolyline(double[] points)`. Performance tests (see `net.iakovlev.timeshape.PolylineQueryBenchmark`)
-show significant speedup of using this method for querying a polyline, comparing to separately querying each point from polyline 
+show significant speedup of using this method for querying a polyline, comparing to separately querying each point from polyline
 using `Optional<ZoneId> query(double latitude, double longitude)` method:
 
 ```
