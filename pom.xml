@@ -48,7 +48,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <data.version>2025b</data.version>
         <software.version>27</software.version>
-        <jackson.version>2.17.2</jackson.version>
+        <jackson.version>2.18.6</jackson.version>
         <commons-compress.version>1.26.1</commons-compress.version>
         <zstd-jni.version>1.5.5-11</zstd-jni.version>
     </properties>
