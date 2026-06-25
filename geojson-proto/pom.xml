@@ -11,7 +11,7 @@
     </parent>
 
     <properties>
-        <protobuf.version>4.31.1</protobuf.version>
+        <protobuf.version>4.35.1</protobuf.version>
     </properties>
 
     <artifactId>geojson-proto</artifactId>

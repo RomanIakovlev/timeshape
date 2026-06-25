@@ -43,7 +43,7 @@ implementation('net.iakovlev:timeshape:2026b.29') {
   exclude group: 'com.github.luben', module: 'zstd-jni'
 }
 // Import aar for native component compilation
-implementation 'com.github.luben:zstd-jni:1.5.5-11@aar'
+implementation 'com.github.luben:zstd-jni:1.5.7-11@aar'
 ```
 
 ## Adopters
