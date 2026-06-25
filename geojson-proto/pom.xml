@@ -7,11 +7,11 @@
     <parent>
         <groupId>net.iakovlev</groupId>
         <artifactId>timeshape-parent</artifactId>
-        <version>2025b.28</version>
+        <version>2026b.29</version>
     </parent>
 
     <properties>
-        <protobuf.version>4.31.1</protobuf.version>
+        <protobuf.version>4.35.1</protobuf.version>
     </properties>
 
     <artifactId>geojson-proto</artifactId>
