@@ -2,7 +2,7 @@
 # Handles timezone data download and resource generation for Maven build
 
 # Variables
-DATA_VERSION ?= 2025b
+DATA_VERSION ?= 2026b
 BUILDER_JAR = builder/target/timeshape-builder.jar
 OUTPUT_DIR = core/target/classes
 OUTPUT_FILE = $(OUTPUT_DIR)/data.tar.zstd
