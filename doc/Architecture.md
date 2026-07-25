@@ -17,9 +17,24 @@ is used instead of `double` to store geo coordinates in protobuf.
 This means, only 4+4=8 bytes are required for each point (latitude + longitude), instead of 8+8=16 bytes for `double`.
 Precision of `float` is good enough for the source data.
 
-At runtime, the code reads the packaged data and build a spatial index for querying. It uses 
-[quad tree](https://en.wikipedia.org/wiki/Quadtree) for indexing, provided by the 
-[Esri geometry API](https://github.com/Esri/geometry-api-java) Java library.
+At runtime, the code reads the packaged data and builds a spatial index for querying. Answering a
+query is two steps: narrowing the world down to the few polygons that may cover the coordinate, and
+testing the coordinate against each of them.
+
+The first step uses a uniform grid of roughly one degree per cell, covering the indexed area. Every
+cell holds the indices of the polygons whose bounding box overlaps it, in one flat `int` array, so
+looking up the candidates is a bit of arithmetic and an array offset.
+
+The second step is an even-odd point-in-polygon test. Each polygon keeps its rings in two flat
+`float` arrays (the same precision the packaged data has), and, when geometry acceleration is
+requested, an index that groups the edges by the latitude band they span. A query then only visits
+the edges that can possibly cross the query latitude, which for the larger time zones is a handful
+instead of the hundred thousand or so edges they are made of. Coordinates that sit within 1e-8
+degrees of an outline count as being inside it, which is what makes a point on a shared border
+belong to both of its time zones.
+
+Both steps are implemented in this repository, in `Index` and `PreparedPolygon`; the library has no
+third party geometry dependency.
 
 ## Build structure
 Timeshape uses [sbt](https://scala-sbt.org) as build system. The sbt build definition has 5 projects:
@@ -38,7 +53,7 @@ Other projects (`core` and `builder`), which must read or write the protobuf, us
 depend on `geojson-protobuf` in classpath sense.
 
 ### core
-This project contains the logic to read the data into a quad tree and provide API for querying it. It's the main project
+This project contains the logic to read the data into the spatial index and provide API for querying it. It's the main project
 with which the library users interact, and provides the main published artifact. It uses sbt feature called
 `resource generator` to create the protobuf file containing the time zone data. The code that actually generates the 
 protobuf data file is in the [builder](#builder) project. The resource generator is run by sbt automatically when necessary.
@@ -103,6 +118,8 @@ dependencies {
 ## Memory usage
 
 The `testApp` project provides memory usage estimate by using [JOL](http://openjdk.java.net/projects/code-tools/jol/).
-The current version's estimated footprint is roughly 128 MB of memory when the data for the whole world is loaded.
+With the data for the whole world loaded, the current version's estimated footprint is roughly 116 MB of memory with
+geometry acceleration enabled (which is what `testApp` measures), and roughly 64 MB without it, the difference being
+the per-polygon latitude index.
 It is possible to further limit the memory usage by reducing the amount of time zones loaded. This is implemented by a call to
 `TimeZoneEngine.initialize(double minlat, double minlon, double maxlat, double maxlon)`.

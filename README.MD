@@ -94,17 +94,47 @@ Data can also be read from an external file, see overloads of `TimeZoneEngine.in
 (see [here](doc/Architecture.md#builder)).
 It is responsibility of caller to close input stream passed to `TimeZoneEngine.initialize`.
 
+##### Trading memory for query speed
+
 There is an overload of `TimeZoneEngine.initialize` method that accepts a boolean parameter called
-`accelerateGeometry`. If that parameter is equals to `true`, Timeshape will build a bitmap index
-for each polygon it loads. This requires some extra memory and takes time at initialization, hence
-that parameter is being `false` by default, however it speeds up the typical point-in-polygon query
-approximately 2.5 times. See performance benchmarks in `AcceleratedGeometryBenchmark.java`, and
-here is the result:
+`accelerateGeometry`. If that parameter is equal to `true`, Timeshape indexes the edges of every
+polygon it loads by the latitude band they span. A query then only visits the edges that can
+possibly cross the queried latitude, instead of all of them, which for the larger time zones means
+a handful of edges rather than the hundred thousand or so they are made of.
+
+It is a straight trade of memory for query speed, and it is a steep one in both directions:
+
+|                                         | `false` (default) | `true`   |
+|-----------------------------------------|-------------------|----------|
+| Memory, whole world                     | ~64 MB            | ~116 MB  |
+| Memory, bounding box covering 39 zones  | ~1.4 MB           | ~2.6 MB  |
+| Initialization, whole world             | ~1.3 s            | ~1.4 s   |
+| One lookup, random world coordinate     | ~106 µs           | ~0.55 µs |
+
+**Turn it on** if your program does more than a handful of lookups. Two orders of magnitude per
+query is hard to make up elsewhere, and initialization barely notices.
+
+**Leave it off** if memory is your scarce resource — on Android, or when many engines are held at
+once. The index is not a small fixed cost: it grows with the number of polygon edges, and adds
+roughly 80% to the footprint of a world-wide engine.
+
+If you are unsure, note that both settings are a large improvement over the releases that preceded
+the rewrite of the geometry backend, which needed roughly 176 MB and about 1 ms per lookup no matter
+how this parameter was set. Upgrading without changing anything already reduces memory use.
+
+The parameter only defaults to `false` on `initialize()` and on the `initialize(TarArchiveInputStream)`
+overload; every other overload takes it explicitly.
+
+See the benchmarks in `AcceleratedGeometryBenchmark.java`, which query 20 major cities per operation:
 ```
-[info] Benchmark                                               Mode  Cnt   Score   Error  Units
-[info] AcceleratedGeometryBenchmark.testAcceleratedEngine     thrpt   10  38.142 ± 0.448  ops/s
-[info] AcceleratedGeometryBenchmark.testNonAcceleratedEngine  thrpt   10  15.289 ± 0.121  ops/s
+Benchmark                                               Mode  Cnt       Score        Error  Units
+AcceleratedGeometryBenchmark.testAcceleratedEngine     thrpt    5  252055.083 ± 30446.750  ops/s
+AcceleratedGeometryBenchmark.testNonAcceleratedEngine  thrpt    5     137.417 ±   12.103  ops/s
 ```
+Those coordinates all sit deep inside dense land polygons, which is the best case for the index; the
+per-lookup figures in the table above come from uniformly random world coordinates, which is closer
+to a worst case. Expect something between the two, and treat all absolute numbers as indicative —
+they were measured single-threaded on JDK 21 and will differ on your hardware.
 
 
 ##### Improving start up time by using serialization
@@ -154,9 +184,9 @@ show significant speedup of using this method for querying a polyline, comparing
 using `Optional<ZoneId> query(double latitude, double longitude)` method:
 
 ```
-Benchmark                                  Mode  Cnt  Score   Error  Units
-PolylineQueryBenchmark.testQueryPoints    thrpt    5  2,188 ▒ 0,044  ops/s
-PolylineQueryBenchmark.testQueryPolyline  thrpt    5  4,073 ▒ 0,017  ops/s
+Benchmark                                  Mode  Cnt   Score   Error  Units
+PolylineQueryBenchmark.testQueryPoints    thrpt    5  15.554 ± 1.123  ops/s
+PolylineQueryBenchmark.testQueryPolyline  thrpt    5  52.402 ± 3.565  ops/s
 ```
 
 ### Architecture
