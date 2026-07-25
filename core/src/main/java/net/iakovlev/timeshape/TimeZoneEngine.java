@@ -1,6 +1,5 @@
 package net.iakovlev.timeshape;
 
-import com.esri.core.geometry.Envelope;
 import com.github.luben.zstd.ZstdInputStream;
 import net.iakovlev.timeshape.proto.Geojson;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -233,12 +232,11 @@ public final class TimeZoneEngine implements Serializable {
         validateCoordinates(minLat, minLon, maxLat, maxLon);
         Stream<Geojson.Feature> featureStream = spliterateInputStream (f);
 
-        Envelope boundaries = new Envelope(minLon, minLat, maxLon, maxLat);
         return new TimeZoneEngine(
                 Index.build(
                         featureStream,
                         NUMBER_OF_TIMEZONES,
-                        boundaries,
+                        minLat, minLon, maxLat, maxLon,
                         accelerateGeometry));
     }
 
