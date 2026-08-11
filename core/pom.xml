@@ -80,6 +80,9 @@
                 <version>3.3.0</version>
                 <configuration>
                     <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
                         <manifestEntries>
                             <Automatic-Module-Name>net.iakovlev.timeshape</Automatic-Module-Name>
                         </manifestEntries>
