@@ -6,7 +6,7 @@
 
     <groupId>net.iakovlev</groupId>
     <artifactId>timeshape-parent</artifactId>
-    <version>2026b.29</version>
+    <version>2026c.30</version>
     <packaging>pom</packaging>
 
     <name>Timeshape Parent</name>
@@ -46,8 +46,8 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <data.version>2026b</data.version>
-        <software.version>29</software.version>
+        <data.version>2026c</data.version>
+        <software.version>30</software.version>
         <jackson.version>2.22.0</jackson.version>
         <commons-compress.version>1.28.0</commons-compress.version>
         <zstd-jni.version>1.5.7-11</zstd-jni.version>
