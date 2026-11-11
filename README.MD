@@ -46,6 +46,31 @@ implementation('net.iakovlev:timeshape:2026b.29') {
 implementation 'com.github.luben:zstd-jni:1.5.7-11@aar'
 ```
 
+If your app has code shrinking enabled (`minifyEnabled true` / R8), add the following rules to your
+`proguard-rules.pro`. Without them, R8 strips or renames classes that zstd-jni's native code and
+Timeshape's resource loading rely on, and `TimeZoneEngine.initialize()` fails at runtime in release builds:
+
+```proguard
+# zstd-jni: keep JNI classes, fields and native methods intact for native code
+-keep class com.github.luben.zstd.** { *; }
+-keepclassmembers class com.github.luben.zstd.** { *; }
+-keepclasseswithmembernames class com.github.luben.zstd.** {
+    native <methods>;
+}
+-keepclassmembers class com.github.luben.zstd.ZstdInputStreamNoFinalizer {
+    long srcPos;
+    long dstPos;
+}
+
+# Esri geometry (Timeshape dependency): Wkid loads .txt resources relative to its package
+-keep class com.esri.core.geometry.** { *; }
+-dontwarn com.esri.core.geometry.**
+
+# Timeshape and its protobuf-generated GeoJSON classes
+-keep class net.iakovlev.timeshape.** { *; }
+-dontwarn net.iakovlev.timeshape.**
+```
+
 ## Adopters
 
 Are you using Timeshape? Please consider opening a pull request to list your organization here:
