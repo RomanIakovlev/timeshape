@@ -54,6 +54,8 @@ Are you using Timeshape? Please consider opening a pull request to list your org
  * [AirPing](https://airping.app/)
  * [Hopper](https://hopper.com/)
  * [Natural Light](https://play.google.com/store/apps/details?id=com.blackholeofphotography.naturallight)
+ * [Movida](https://www.movida.com.br/)
+ * [Ceabs](https://www.ceabs.com.br/)
 
 ## Using the library
 
