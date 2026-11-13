@@ -83,6 +83,9 @@
                         <manifestEntries>
                             <Automatic-Module-Name>net.iakovlev.timeshape</Automatic-Module-Name>
                         </manifestEntries>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
                     </archive>
                 </configuration>
             </plugin>
